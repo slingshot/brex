@@ -6,6 +6,7 @@ import { Address } from './Address';
 import { ApiOptions } from './ApiOptions';
 import { ApiListRequest } from './ApiListRequest';
 import { ApiListResponse } from './ApiListResponse';
+import { ApiRequestOptions } from './ApiRequestOptions';
 
 export type {
     Vendor,
@@ -16,4 +17,5 @@ export type {
     ApiOptions,
     ApiListRequest,
     ApiListResponse,
+    ApiRequestOptions,
 };

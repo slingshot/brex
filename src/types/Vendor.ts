@@ -11,7 +11,7 @@ export interface Vendor {
     /**
      * The name of the vendor's company.
      */
-    companyName: string | null;
+    company_name: string | null;
     /**
      * A contact email for the vendor.
      */
@@ -23,5 +23,5 @@ export interface Vendor {
     /**
      * A list of payment accounts associated with the vendor.
      */
-    paymentAccounts: PaymentAccountResponse[] | null;
+    payment_accounts: PaymentAccountResponse[] | null;
 }

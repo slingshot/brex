@@ -22,7 +22,7 @@ jobs:
         run: yarn test --ci --coverage --maxWorkers=2
 
       - name: Create the docs directory locally in CI
-        run: npx typedoc
+        run: yarn generate-docs
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.4

@@ -7,6 +7,7 @@ import {
     ApiOptions,
     ApiListResponse,
     ApiListRequest,
+    ApiRequestOptions,
 } from './types';
 import { Brex } from './Brex';
 
@@ -19,6 +20,7 @@ export type {
     ApiOptions,
     ApiListResponse,
     ApiListRequest,
+    ApiRequestOptions,
 };
 
 export {
