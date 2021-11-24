@@ -1,0 +1,35 @@
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>brex</title><meta name="description" content="Documentation for brex"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">brex</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1>brex</h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<a href="#brex-api-wrapper-for-javascript" id="brex-api-wrapper-for-javascript" style="color: inherit; text-decoration: none;">
+  <h1>Brex API Wrapper for JavaScript</h1>
+</a>
+<p>This project is an unofficial JS wrapper for the Brex API, maintained by <a href="https://github.com/slingshot">Slingshot</a>. <strong>This is a work in progress.</strong></p>
+<p>This library is built in TypeScript and comes with built-in types. All requests use <a href="https://www.npmjs.com/package/isomorphic-unfetch">isomorphic-unfetch</a> and should work both in Node and in browsers.</p>
+<p>Install the package to get started:</p>
+<pre><code class="language-shell"><span class="hl-0">npm install brex --save</span><br/><span class="hl-1"># OR</span><br/><span class="hl-0">yarn add brex</span>
+</code></pre>
+
+<a href="#basic-usage" id="basic-usage" style="color: inherit; text-decoration: none;">
+  <h2>Basic usage</h2>
+</a>
+<p>Initialize an API instance using a user token, which you can generate in your Brex account dashboard.</p>
+<pre><code class="language-typescript"><span class="hl-2">import</span><span class="hl-0"> { </span><span class="hl-3">Brex</span><span class="hl-0"> } </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-4">&#39;brex&#39;</span><span class="hl-0">;</span><br/><br/><span class="hl-5">const</span><span class="hl-0"> </span><span class="hl-6">brex</span><span class="hl-0"> = </span><span class="hl-5">new</span><span class="hl-0"> </span><span class="hl-7">Brex</span><span class="hl-0">(</span><span class="hl-4">&#39;{{YOUR USER TOKEN HERE}}&#39;</span><span class="hl-0">);</span>
+</code></pre>
+
+<a href="#current-functionality" id="current-functionality" style="color: inherit; text-decoration: none;">
+  <h2>Current functionality</h2>
+</a>
+<ul>
+<li>Payments API: Vendors (WIP)</li>
+</ul>
+
+<a href="#what39s-coming-soon" id="what39s-coming-soon" style="color: inherit; text-decoration: none;">
+  <h2>What&#39;s coming soon?</h2>
+</a>
+<ul>
+<li>Payments API: Transfers</li>
+<li>Comprehensive tests</li>
+<li>Team API</li>
+<li>Transactions API</li>
+<li>Onboarding API</li>
+</ul>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="tsd-kind-enum"><a href="enums/PaymentDetailsTypeResponse.html" class="tsd-kind-icon">Payment<wbr/>Details<wbr/>Type<wbr/>Response</a></li><li class="tsd-kind-class"><a href="classes/Brex.html" class="tsd-kind-icon">Brex</a></li><li class="tsd-kind-interface"><a href="interfaces/Address.html" class="tsd-kind-icon">Address</a></li><li class="tsd-kind-interface"><a href="interfaces/ApiListRequest.html" class="tsd-kind-icon">Api<wbr/>List<wbr/>Request</a></li><li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/ApiListResponse.html" class="tsd-kind-icon">Api<wbr/>List<wbr/>Response</a></li><li class="tsd-kind-interface"><a href="interfaces/ApiOptions.html" class="tsd-kind-icon">Api<wbr/>Options</a></li><li class="tsd-kind-interface"><a href="interfaces/PaymentAccountDetailsResponse.html" class="tsd-kind-icon">Payment<wbr/>Account<wbr/>Details<wbr/>Response</a></li><li class="tsd-kind-interface"><a href="interfaces/PaymentAccountResponse.html" class="tsd-kind-icon">Payment<wbr/>Account<wbr/>Response</a></li><li class="tsd-kind-interface"><a href="interfaces/Vendor.html" class="tsd-kind-icon">Vendor</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li><li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
