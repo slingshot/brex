@@ -3,6 +3,9 @@ import { PaymentAccountResponse } from './PaymentAccountResponse';
 import { PaymentAccountDetailsResponse } from './PaymentAccountDetailsResponse';
 import { PaymentDetailsTypeResponse } from './PaymentDetailsTypeResponse';
 import { Address } from './Address';
+import { ApiOptions } from './ApiOptions';
+import { ApiListRequest } from './ApiListRequest';
+import { ApiListResponse } from './ApiListResponse';
 
 export type {
     Vendor,
@@ -10,4 +13,7 @@ export type {
     PaymentAccountDetailsResponse,
     PaymentDetailsTypeResponse,
     Address,
+    ApiOptions,
+    ApiListRequest,
+    ApiListResponse,
 };

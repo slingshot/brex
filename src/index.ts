@@ -1,6 +1,14 @@
 import {
-    Vendor, PaymentAccountResponse, PaymentAccountDetailsResponse, PaymentDetailsTypeResponse, Address,
+    Vendor,
+    PaymentAccountResponse,
+    PaymentAccountDetailsResponse,
+    PaymentDetailsTypeResponse,
+    Address,
+    ApiOptions,
+    ApiListResponse,
+    ApiListRequest,
 } from './types';
+import { Brex } from './Brex';
 
 export type {
     Vendor,
@@ -8,4 +16,11 @@ export type {
     PaymentAccountDetailsResponse,
     PaymentDetailsTypeResponse,
     Address,
+    ApiOptions,
+    ApiListResponse,
+    ApiListRequest,
+};
+
+export {
+    Brex,
 };
