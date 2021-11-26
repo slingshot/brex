@@ -15,6 +15,9 @@ import {
     PaymentAccountDetails,
 } from './types';
 import { Brex } from './Brex';
+import { VendorsAPI } from './VendorsAPI';
+import { apiRequest } from './util/apiRequest';
+import { uuid } from './util/uuid';
 
 export type {
     Vendor,
@@ -35,4 +38,7 @@ export {
     BankAccountClass,
     BankAccountType,
     PaymentAccountType,
+    VendorsAPI,
+    apiRequest,
+    uuid,
 };
