@@ -2,12 +2,17 @@ import {
     Vendor,
     PaymentAccountResponse,
     PaymentAccountDetailsResponse,
-    PaymentDetailsTypeResponse,
     Address,
     ApiOptions,
     ApiListResponse,
-    ApiListRequest,
     ApiRequestOptions,
+    ACHDetails,
+    BankAccountClass,
+    BankAccountType,
+    PaymentAccountType,
+    DomesticWirePaymentDetails,
+    ChequePaymentDetails,
+    PaymentAccountDetails,
 } from './types';
 import { Brex } from './Brex';
 
@@ -15,14 +20,19 @@ export type {
     Vendor,
     PaymentAccountResponse,
     PaymentAccountDetailsResponse,
-    PaymentDetailsTypeResponse,
     Address,
     ApiOptions,
     ApiListResponse,
-    ApiListRequest,
     ApiRequestOptions,
+    ACHDetails,
+    DomesticWirePaymentDetails,
+    ChequePaymentDetails,
+    PaymentAccountDetails,
 };
 
 export {
     Brex,
+    BankAccountClass,
+    BankAccountType,
+    PaymentAccountType,
 };

@@ -1,4 +1,4 @@
-export enum PaymentDetailsTypeResponse {
+export enum PaymentAccountType {
     ACH = 'ACH',
     DOMESTIC_WIRE = 'DOMESTIC_WIRE',
     CHEQUE = 'CHEQUE',

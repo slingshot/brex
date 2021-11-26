@@ -1,4 +1,4 @@
-import { PaymentAccountResponse } from './PaymentAccountResponse';
+import { PaymentAccountResponse } from './Accounts/PaymentAccountResponse';
 
 /**
  * A Brex account vendor.
@@ -11,17 +11,17 @@ export interface Vendor {
     /**
      * The name of the vendor's company.
      */
-    company_name: string | null;
+    company_name?: string;
     /**
      * A contact email for the vendor.
      */
-    email: string | null;
+    email?: string;
     /**
      * A contact phone number for the vendor.
      */
-    phone: string | null;
+    phone?: string;
     /**
      * A list of payment accounts associated with the vendor.
      */
-    payment_accounts: PaymentAccountResponse[] | null;
+    payment_accounts?: PaymentAccountResponse[];
 }

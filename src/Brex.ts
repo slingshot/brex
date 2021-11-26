@@ -1,6 +1,10 @@
 import fetch from 'isomorphic-unfetch';
 import {
-    ApiOptions, Vendor, ApiListRequest, ApiListResponse, ApiRequestOptions,
+    ApiOptions,
+    Vendor,
+    ApiListResponse,
+    ApiRequestOptions,
+    PaymentAccountDetails, ApiError,
 } from './types';
 import { uuid } from './util/uuid';
 
@@ -26,7 +30,7 @@ export class Brex {
     /**
      * Constructs a Brex API instance.
      * @param token - Your Brex API user token.
-     * @param options - Additional options (see [[ApiOptions]]).
+     * @param options - Additional options (see {@link ApiOptions}).
      */
     constructor(
         token: string,
@@ -39,7 +43,7 @@ export class Brex {
 
     /**
      * A generic request function for accessing the Brex API.
-     * @param options - See [[ApiRequestOptions]].
+     * @param options - See {@link ApiRequestOptions}.
      */
     request = async (
         {
@@ -47,7 +51,7 @@ export class Brex {
             method,
             query,
             body,
-            idempotencyKey = uuid(),
+            idempotency_key = uuid(),
         }: ApiRequestOptions,
     ) => {
         if (!endpoint) throw new Error('Must provide an endpoint for request');
@@ -62,39 +66,70 @@ export class Brex {
                     .filter((p) => !!p[1]),
             ))).toString()}`;
         }
-
         const res = await fetch(
             `${this.baseURL}/${this.apiVersion}/${endpoint}${queryUrlParams}`,
             {
                 method,
                 headers: {
                     Authorization: `Bearer ${this.token}`,
-                    'Idempotency-Key': idempotencyKey,
+                    'Content-Type': 'application/json',
+                    'Idempotency-Key': idempotency_key,
                 },
-                body,
+                body: JSON.stringify(body),
             },
         );
         if (res.ok) {
             return res.json();
         }
-        throw new Error(`Received error ${res.status} ${res.statusText} ${await res.text()}`);
+        throw new ApiError({
+            status: res.status,
+            message: res.statusText,
+            response: await res.json() || await res.text(),
+        });
     };
 
     vendors = {
+        /**
+         * List vendors (`GET /vendors`)
+         */
         list: async (
-            {
-                cursor,
-                limit,
-                name,
-            }: ApiListRequest = {},
+            options: {
+                /** The current cursor for paginated results */
+                cursor?: string;
+                /** The desired number of results per page */
+                limit?: number;
+                /** A query for listed vendors by their name */
+                name?: string;
+            } = {},
         ): Promise<ApiListResponse<Vendor>> => this.request({
             endpoint: 'vendors',
             method: 'GET',
             query: {
-                cursor,
-                limit,
-                name,
+                ...options,
             },
         }),
+        /**
+         * Create vendors (`POST /vendors`)
+         */
+        create: async (options: {
+            company_name: string,
+            email?: string,
+            phone?: string,
+            payment_accounts?: PaymentAccountDetails[],
+            idempotency_key?: string,
+        }): Promise<Vendor> => {
+            const { idempotency_key, ...body } = options;
+            return this.request({
+                endpoint: 'vendors',
+                method: 'POST',
+                body: {
+                    ...body,
+                    payment_accounts: options.payment_accounts?.map((details) => ({
+                        details,
+                    })) ?? [],
+                },
+                idempotency_key,
+            });
+        },
     };
 }

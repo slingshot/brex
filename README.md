@@ -49,7 +49,7 @@ This functionality will be rolled out incrementally and tracked below. The `brex
 #### Vendors
 
 - [x] `brex.vendors.list()`
-- [ ] `brex.vendors.create()`
+- [x] `brex.vendors.create()`
 - [ ] `brex.vendors.get()`
 - [ ] `brex.vendors.update()`
 - [ ] `brex.vendors.delete()`
