@@ -46,13 +46,13 @@ This functionality will be rolled out incrementally and tracked below. The `brex
 
 ### Payments API
 
-#### Vendors
+#### ✅ Vendors
 
 - [x] `brex.vendors.list()`
 - [x] `brex.vendors.create()`
-- [ ] `brex.vendors.get()`
-- [ ] `brex.vendors.update()`
-- [ ] `brex.vendors.delete()`
+- [x] `brex.vendors.get()`
+- [x] `brex.vendors.update()`
+- [x] `brex.vendors.delete()`
 
 #### Transfers
 
