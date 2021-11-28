@@ -13,6 +13,12 @@ yarn add brex
 
 The full wrapper API reference can be found at [slingshot.github.io/brex](https://slingshot.github.io/brex/).
 
+**This is an UNOFFICIAL LIBRARY and not created, maintained, or in any way connected with Brex Inc. or any associated entity.** "Brex" is a registered trademark of Brex, Inc. Use of the Brex API is subject to the [Brex Access Agreement](https://www.brex.com/legal/developer-portal/).
+
+The nature of the Brex API means that most usage will involve dealing with highly sensitive financial data and transfers. **You are entirely responsible for ensuring that proper security measures are implemented to protect all data.**
+
+This wrapper library is offered under the MIT license (see the [LICENSE](LICENSE) file for full text).
+
 ## Basic usage
 
 Initialize an API instance using a user token, which you can generate in your Brex account dashboard (or via OAuth).
@@ -54,11 +60,11 @@ This functionality will be rolled out incrementally and tracked below. The `brex
 - [x] `brex.vendors.update()`
 - [x] `brex.vendors.delete()`
 
-#### Transfers
+#### ✅ Transfers
 
-- [ ] `brex.transfers.list()`
-- [ ] `brex.transfers.create()`
-- [ ] `brex.transfers.get()`
+- [x] `brex.transfers.list()`
+- [x] `brex.transfers.create()`
+- [x] `brex.transfers.get()`
 
 ### Team API
 
@@ -108,7 +114,13 @@ This functionality will be rolled out incrementally and tracked below. The `brex
 
 #### Accounts
 
-- [ ] `brex.accounts.listCards`
-- [ ] `brex.accounts.listPrimaryCardStatements`
-- [ ] `brex.accounts.listCash`
-- [ ] `brex.accounts.listCashStatements`
+- [ ] `brex.accounts.listCards()`
+- [ ] `brex.accounts.listPrimaryCardStatements()`
+- [ ] `brex.accounts.listCash()`
+- [ ] `brex.accounts.listCashStatements()`
+
+### Cleanup & docs
+
+- [ ] Contribution guidelines
+- [ ] Jest tests (probably by providing a key in env; CI if possible, but could be tough without a test/sandbox API key)
+- [ ] Documentation and examples (possibly just a modified/enhanced version of the [auto-generated TypeDoc docs](https://slingshot.github.io/brex))

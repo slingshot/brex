@@ -7,15 +7,27 @@ import {
     ApiListResponse,
     ApiRequestOptions,
     ACHDetails,
-    BankAccountClass,
-    BankAccountType,
-    PaymentAccountType,
     DomesticWirePaymentDetails,
     ChequePaymentDetails,
     PaymentAccountDetails,
+    Counterparty,
+    BookTransferPaymentInstrumentID,
+    VendorPaymentInstrumentID,
+    Transfer,
+    Money,
+    OriginatingAccountResponse,
+    OriginatingAccount,
+    BankAccountClass,
+    BankAccountType,
+    PaymentAccountType,
+    ApiError,
+    CounterpartyType,
+    TransferStatus,
+    CounterpartyResponse,
 } from './types';
 import { Brex } from './Brex';
 import { VendorsAPI } from './VendorsAPI';
+import { TransfersAPI } from './TransfersAPI';
 import { apiRequest } from './util/apiRequest';
 import { uuid } from './util/uuid';
 
@@ -31,6 +43,14 @@ export type {
     DomesticWirePaymentDetails,
     ChequePaymentDetails,
     PaymentAccountDetails,
+    Counterparty,
+    BookTransferPaymentInstrumentID,
+    VendorPaymentInstrumentID,
+    Transfer,
+    Money,
+    OriginatingAccountResponse,
+    OriginatingAccount,
+    CounterpartyResponse,
 };
 
 export {
@@ -38,7 +58,11 @@ export {
     BankAccountClass,
     BankAccountType,
     PaymentAccountType,
+    ApiError,
+    CounterpartyType,
+    TransferStatus,
     VendorsAPI,
+    TransfersAPI,
     apiRequest,
     uuid,
 };

@@ -15,11 +15,11 @@ export class VendorsAPI {
     }
 
     /**
-     * List vendors (`GET /vendors`)
+     * Lists all existing vendors for an account. Takes an optional parameter to match by vendor name.
      */
     list = async (
         options: {
-        /** The current cursor for paginated results */
+            /** The current cursor for paginated results */
             cursor?: string;
             /** The desired number of results per page */
             limit?: number;
@@ -35,7 +35,9 @@ export class VendorsAPI {
     });
 
     /**
-     * Create vendors (`POST /vendors`)
+     * Creates a new vendor.
+     *
+     * NOTE: You cannot currently create `INTERNATIONAL_WIRE` payment accountss through the API.
      */
     create = async (options: {
         company_name: string,
@@ -59,15 +61,15 @@ export class VendorsAPI {
     };
 
     /**
- * Get a specific vendor by ID (`GET /vendors/{id}`)
- */
+    * Gets a vendor by ID.
+    */
     get = async (id: string): Promise<Vendor> => this.request({
         endpoint: `vendors/${id}`,
         method: 'GET',
     });
 
     /**
-     * Update a vendor (`PUT /vendors/{id}`)
+     * Updates an existing vendor by ID.
      */
     update = async (
         id: string,
@@ -94,7 +96,7 @@ export class VendorsAPI {
     };
 
     /**
-     * Delete a vendor (`DELETE /vendors/{id}`)
+     * Deletes a vendor by ID.
      */
     delete = async (id: string): Promise<void> => {
         await this.request({

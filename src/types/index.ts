@@ -13,6 +13,18 @@ import { ChequePaymentDetails } from './Accounts/ChequePaymentDetails';
 import { PaymentAccountDetails } from './Accounts/PaymentAccountDetails';
 import { PaymentAccountDetailsResponse } from './Accounts/PaymentAccountDetailsResponse';
 import { ApiError } from './ApiError';
+import {
+    Counterparty,
+    CounterpartyType,
+    BookTransferPaymentInstrumentID,
+    VendorPaymentInstrumentID,
+    CounterpartyResponse,
+} from './Counterparty';
+import { Money } from './Money';
+import { OriginatingAccountResponse } from './OriginatingAccountResponse';
+import { TransferStatus } from './TransferStatus';
+import { Transfer } from './Transfer';
+import { OriginatingAccount } from './OriginatingAccount';
 
 export type {
     Vendor,
@@ -26,6 +38,14 @@ export type {
     DomesticWirePaymentDetails,
     ChequePaymentDetails,
     PaymentAccountDetails,
+    Counterparty,
+    BookTransferPaymentInstrumentID,
+    VendorPaymentInstrumentID,
+    Transfer,
+    Money,
+    OriginatingAccountResponse,
+    OriginatingAccount,
+    CounterpartyResponse,
 };
 
 export {
@@ -33,4 +53,6 @@ export {
     BankAccountType,
     PaymentAccountType,
     ApiError,
+    CounterpartyType,
+    TransferStatus,
 };
