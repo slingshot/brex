@@ -112,12 +112,12 @@ This functionality will be rolled out incrementally and tracked below. The `brex
 - [ ] `brex.transactions.listPrimaryCard()`
 - [ ] `brex.transactions.listCash()`
 
-#### Accounts
+#### ✅ Accounts
 
-- [ ] `brex.accounts.listCards()`
-- [ ] `brex.accounts.listPrimaryCardStatements()`
-- [ ] `brex.accounts.listCash()`
-- [ ] `brex.accounts.listCashStatements()`
+- [x] `brex.accounts.listCardAccounts()`
+- [x] `brex.accounts.listPrimaryCardStatements()`
+- [x] `brex.accounts.listCashAccounts()`
+- [x] `brex.accounts.listCashStatements()`
 
 ### Cleanup & docs
 

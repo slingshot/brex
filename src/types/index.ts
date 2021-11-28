@@ -1,17 +1,17 @@
 import { Vendor } from './Vendor';
-import { PaymentAccountResponse } from './Accounts/PaymentAccountResponse';
+import { PaymentAccountResponse } from './Transfers/PaymentAccountResponse';
 import { Address } from './Address';
 import { ApiOptions } from './ApiOptions';
 import { ApiListResponse } from './ApiListResponse';
 import { ApiRequestOptions } from './ApiRequestOptions';
-import { ACHDetails } from './Accounts/ACHDetails';
-import { BankAccountClass } from './Accounts/BankAccountClass';
-import { BankAccountType } from './Accounts/BankAccountType';
-import { PaymentAccountType } from './Accounts/PaymentAccountType';
-import { DomesticWirePaymentDetails } from './Accounts/DomesticWirePaymentDetails';
-import { ChequePaymentDetails } from './Accounts/ChequePaymentDetails';
-import { PaymentAccountDetails } from './Accounts/PaymentAccountDetails';
-import { PaymentAccountDetailsResponse } from './Accounts/PaymentAccountDetailsResponse';
+import { ACHDetails } from './Transfers/ACHDetails';
+import { BankAccountClass } from './Transfers/BankAccountClass';
+import { BankAccountType } from './Transfers/BankAccountType';
+import { PaymentAccountType } from './Transfers/PaymentAccountType';
+import { DomesticWirePaymentDetails } from './Transfers/DomesticWirePaymentDetails';
+import { ChequePaymentDetails } from './Transfers/ChequePaymentDetails';
+import { PaymentAccountDetails } from './Transfers/PaymentAccountDetails';
+import { PaymentAccountDetailsResponse } from './Transfers/PaymentAccountDetailsResponse';
 import { ApiError } from './ApiError';
 import {
     Counterparty,
@@ -25,6 +25,9 @@ import { OriginatingAccountResponse } from './OriginatingAccountResponse';
 import { TransferStatus } from './TransferStatus';
 import { Transfer } from './Transfer';
 import { OriginatingAccount } from './OriginatingAccount';
+import { CardAccount } from './Accounts/CardAccount';
+import { Statement } from './Accounts/Statement';
+import { CashAccount } from './Accounts/CashAccount';
 
 export type {
     Vendor,
@@ -46,6 +49,9 @@ export type {
     OriginatingAccountResponse,
     OriginatingAccount,
     CounterpartyResponse,
+    CardAccount,
+    Statement,
+    CashAccount,
 };
 
 export {

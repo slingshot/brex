@@ -1,4 +1,4 @@
-import { PaymentAccountResponse } from './Accounts/PaymentAccountResponse';
+import { PaymentAccountResponse } from './Transfers/PaymentAccountResponse';
 
 /**
  * A Brex account vendor.

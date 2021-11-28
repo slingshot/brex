@@ -24,10 +24,14 @@ import {
     CounterpartyType,
     TransferStatus,
     CounterpartyResponse,
+    CardAccount,
+    Statement,
+    CashAccount,
 } from './types';
 import { Brex } from './Brex';
 import { VendorsAPI } from './VendorsAPI';
 import { TransfersAPI } from './TransfersAPI';
+import { AccountsAPI } from './AccountsAPI';
 import { apiRequest } from './util/apiRequest';
 import { uuid } from './util/uuid';
 
@@ -51,6 +55,9 @@ export type {
     OriginatingAccountResponse,
     OriginatingAccount,
     CounterpartyResponse,
+    CardAccount,
+    Statement,
+    CashAccount,
 };
 
 export {
@@ -63,6 +70,7 @@ export {
     TransferStatus,
     VendorsAPI,
     TransfersAPI,
+    AccountsAPI,
     apiRequest,
     uuid,
 };

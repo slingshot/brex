@@ -5,6 +5,7 @@ import {
 import { apiRequest } from './util/apiRequest';
 import { VendorsAPI } from './VendorsAPI';
 import { TransfersAPI } from './TransfersAPI';
+import { AccountsAPI } from './AccountsAPI';
 
 /**
  * A Brex API instance.
@@ -47,7 +48,6 @@ export class Brex {
         options: ApiRequestOptions,
     ) => apiRequest(
         this.token,
-        this.apiVersion,
         this.baseURL,
         options,
     );
@@ -61,4 +61,9 @@ export class Brex {
      * Payments API: Transfers endpoints
      */
     transfers = new TransfersAPI(this.request);
+
+    /**
+     * Transactions API: Accounts endpoints
+     */
+    accounts = new AccountsAPI(this.request);
 }

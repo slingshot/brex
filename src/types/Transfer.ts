@@ -1,5 +1,5 @@
 import { CounterpartyResponse } from './Counterparty';
-import { PaymentAccountType } from './Accounts/PaymentAccountType';
+import { PaymentAccountType } from './Transfers/PaymentAccountType';
 import { Money } from './Money';
 import { OriginatingAccountResponse } from './OriginatingAccountResponse';
 import { TransferStatus } from './TransferStatus';

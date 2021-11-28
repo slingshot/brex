@@ -5,19 +5,18 @@ import { ApiError, ApiRequestOptions } from '../types';
 /**
  * Conduct a raw request to any Brex API endpoint outside of a {@link Brex} instance.
  * @param token - Your user token.
- * @param apiVersion - The API version (usually `v1`).
  * @param baseURL - The base URL (usually `https://platform.brexapis.com`).
  * @param options - See {@link ApiRequestOptions}.
  */
 export const apiRequest = async (
     token: string,
-    apiVersion: string,
     baseURL: string,
     {
         endpoint,
         method,
         query,
         body,
+        apiVersion = 'v1',
         idempotency_key = uuid(),
     }: ApiRequestOptions,
 ) => {

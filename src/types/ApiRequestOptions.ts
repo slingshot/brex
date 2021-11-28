@@ -7,6 +7,8 @@ export interface ApiRequestOptions {
     query?: { [key: string]: any };
     /** Request body. */
     body?: any;
+    /** The API version. */
+    apiVersion?: string;
     /** An idempotency key for the request (by default, a UUID is generated for each request, but you should provide one manually to ensure true idempotency). */
     idempotency_key?: string;
 }
