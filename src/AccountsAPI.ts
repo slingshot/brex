@@ -45,7 +45,7 @@ export class AccountsAPI {
     /**
      * Lists all the existing cash accounts with their status.
      */
-    listCashAccounts = async (): Promise<ApiListResponse<CashAccount[]>> => this.request({
+    listCashAccounts = async (): Promise<ApiListResponse<CashAccount>> => this.request({
         endpoint: 'accounts/cash',
         method: 'GET',
         apiVersion: 'v2',
