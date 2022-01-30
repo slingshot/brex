@@ -11,4 +11,9 @@ export interface ApiOptions {
      * The version of the Brex API to be used; defaults to `v1`.
      */
     apiVersion?: string;
+
+    /**
+     * The Brex environment to target. The options are "production" and "staging"
+     */
+    environment: string;
 }
