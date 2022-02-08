@@ -37,10 +37,10 @@ export class Brex {
     ) {
         this.token = token;
         this.baseURL = 'https://platform.brexapis.com';
-        if(options?.baseURL){
+        if (options?.baseURL) {
             this.baseURL = options.baseURL;
-        } else if(options) {
-            this.baseURL = !/(prod|production)/.test(options.environment) ? "https://platform.staging.brexapps.com" : this.baseURL;
+        } else if (options?.environment) {
+            this.baseURL = options.environment === 'staging' ? 'https://platform.staging.brexapps.com' : this.baseURL;
         }
         this.apiVersion = options?.apiVersion || 'v1';
     }
