@@ -15,5 +15,5 @@ export interface ApiOptions {
     /**
      * The Brex environment to target. The options are "production" and "staging"
      */
-    environment: string;
+    environment?: 'production' | 'staging';
 }
