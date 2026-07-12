@@ -1,0 +1,25 @@
+name: Docs Sentinel
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+  push:
+    branches: [main]
+
+# A called workflow can only DOWNGRADE these — the caller must grant them.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  docs-sentinel:
+    uses: slingshot/docs-sentinel/.github/workflows/audit.yml@v1
+    secrets:
+      MODEL_API_KEY: ${{ secrets.MODEL_API_KEY }}
+      SYNC_PR_TOKEN: ${{ secrets.SYNC_PR_TOKEN }}
+    with:
+      # CLAUDE.md is a symlink to AGENTS.md and is deliberately excluded —
+      # edits land via AGENTS.md. The .changeset/*.md files are release-notes
+      # inputs, not living docs.
+      allowlist-regex: '^(README\.md|AGENTS\.md|CONTRIBUTING\.md)$'
