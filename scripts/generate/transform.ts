@@ -1,4 +1,4 @@
-import type { SchemaObject, SpecDocument } from "./ir";
+import type { SchemaObject, SpecDocument } from './ir';
 
 /**
  * The Brex specs model polymorphism as `Parent = { props } + oneOf[children]`
@@ -16,39 +16,39 @@ import type { SchemaObject, SpecDocument } from "./ir";
  * upstream. Purely structural, so it is deterministic.
  */
 export function breakPolymorphismCycles(doc: SpecDocument): SpecDocument {
-  const schemas = doc.components?.schemas ?? {};
+    const schemas = doc.components?.schemas ?? {};
 
-  for (const [parentName, parent] of Object.entries(schemas)) {
-    if (!parent.oneOf) continue;
-    const selfRef = `#/components/schemas/${parentName}`;
+    for (const [parentName, parent] of Object.entries(schemas)) {
+        if (!parent.oneOf) continue;
+        const selfRef = `#/components/schemas/${parentName}`;
 
-    const base: SchemaObject = { ...parent };
-    delete base.oneOf;
-    delete (base as Record<string, unknown>).discriminator;
-    const baseHasContent = Boolean(base.properties ?? base.allOf);
+        const base: SchemaObject = { ...parent };
+        delete base.oneOf;
+        delete (base as Record<string, unknown>).discriminator;
+        const baseHasContent = Boolean(base.properties ?? base.allOf);
 
-    let broke = false;
-    for (const member of parent.oneOf) {
-      const memberName = member.$ref?.replace("#/components/schemas/", "");
-      const child = memberName ? schemas[memberName] : undefined;
-      if (!child?.allOf) continue;
-      const idx = child.allOf.findIndex((entry) => entry.$ref === selfRef);
-      if (idx === -1) continue;
-      if (baseHasContent) {
-        child.allOf[idx] = structuredClone(base);
-      } else {
-        child.allOf.splice(idx, 1);
-      }
-      broke = true;
+        let broke = false;
+        for (const member of parent.oneOf) {
+            const memberName = member.$ref?.replace('#/components/schemas/', '');
+            const child = memberName ? schemas[memberName] : undefined;
+            if (!child?.allOf) continue;
+            const idx = child.allOf.findIndex((entry) => entry.$ref === selfRef);
+            if (idx === -1) continue;
+            if (baseHasContent) {
+                child.allOf[idx] = structuredClone(base);
+            } else {
+                child.allOf.splice(idx, 1);
+            }
+            broke = true;
+        }
+
+        if (broke) {
+            // The base moved into the children; the parent is now a clean union.
+            delete parent.properties;
+            delete parent.required;
+            delete parent.type;
+        }
     }
 
-    if (broke) {
-      // The base moved into the children; the parent is now a clean union.
-      delete parent.properties;
-      delete parent.required;
-      delete parent.type;
-    }
-  }
-
-  return doc;
+    return doc;
 }

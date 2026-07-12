@@ -8,21 +8,35 @@
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-    "indentWidth": 2,
+    "indentWidth": 4,
     "lineWidth": 100
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "style": {
+        "noParameterAssign": "error",
+        "useTemplate": "error",
+        "useDefaultParameterLast": "error",
+        "useCollapsedElseIf": "error"
+      }
     }
   },
   "javascript": {
     "formatter": {
-      "quoteStyle": "double"
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "all"
     }
   },
   "overrides": [
+    {
+      "includes": ["**/*.json", "**/*.jsonc"],
+      "formatter": {
+        "indentWidth": 2
+      }
+    },
     {
       "includes": ["src/**/*.gen.ts", "src/index.ts", "src/*/index.ts"],
       "linter": {
