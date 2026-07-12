@@ -1,5 +1,11 @@
 # `/sync-specs` project skill — design
 
+> Note on this file's own location: it lives under `docs/superpowers/specs/` per the
+> brainstorming skill's default convention, inside the repo-root `docs/` directory that
+> otherwise holds the self-contained Astro Starlight site. That's harmless — Astro's
+> content collection only loads from `docs/src/content/docs/`, and `docs/.gitignore`
+> doesn't touch this path — but is called out here so it isn't mistaken for site content.
+
 ## Context
 
 Pulling in upstream Brex API changes is currently a fully manual, human-driven sequence
