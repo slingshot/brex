@@ -60,7 +60,7 @@ Then add a changeset describing the user-facing change:
 bunx changeset
 ```
 
-Releases are automated: merged changesets accumulate into a release PR ([Changesets](https://github.com/changesets/changesets)); merging that publishes to npm with provenance. The `v2` branch is in `alpha` pre-mode (`2.0.0-alpha.N`) until `bunx changeset pre exit`.
+Releases are automated: merged changesets accumulate into a release PR ([Changesets](https://github.com/changesets/changesets)); merging that publishes to npm with provenance.
 
 ## Live smoke testing (optional)
 
