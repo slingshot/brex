@@ -1,6 +1,6 @@
 {
   "name": "brex",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0",
   "description": "Unofficial TypeScript SDK for the Brex API, generated deterministically from Brex's OpenAPI specs. Tree-shakeable, ESM-only, zero dependencies.",
   "keywords": [
     "brex",
