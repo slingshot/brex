@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main, v2]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Generated code drift check
+        run: |
+          bun run generate
+          if ! git diff --exit-code -- src specs README.md; then
+            echo "::error::Generated output is stale. Run 'bun run generate' and commit the result."
+            exit 1
+          fi
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Test
+        run: bun test
+
+      - name: Build
+        run: bun run build
+
+      - name: Package checks (publint + arethetypeswrong)
+        run: bun run check:package
+
+      - name: Node import smoke (ESM import + require(esm))
+        run: |
+          node -e "import('./dist/index.js').then(m => { if (typeof m.Brex !== 'function') { throw new Error('Brex export missing'); } })"
+          node -e "const { Brex } = require('./dist/index.js'); if (typeof Brex !== 'function') { throw new Error('require(esm) failed'); }"

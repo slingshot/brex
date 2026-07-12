@@ -8,6 +8,7 @@ import { parse } from "yaml";
 import { GenerationError } from "./generate/common";
 import { buildSpecModel, emitClient, type SpecModel } from "./generate/emit-client";
 import { emitRootEntry, emitSpecEntry } from "./generate/emit-entries";
+import { updateReadme } from "./generate/emit-readme";
 import { emitSchemas } from "./generate/emit-schemas";
 import { emitTypes } from "./generate/emit-types";
 import type { OperationIR, SpecDocument } from "./generate/ir";
@@ -41,6 +42,9 @@ try {
     await Bun.write(join(outDir, "index.ts"), emitSpecEntry(model));
   }
   await Bun.write(join(SRC_DIR, "index.ts"), emitRootEntry(models));
+
+  const readmePath = new URL("../README.md", import.meta.url).pathname;
+  await Bun.write(readmePath, updateReadme(await Bun.file(readmePath).text(), models));
 
   // Formatting is part of generation so output is stable regardless of emitter style.
   const format = Bun.spawnSync(["bunx", "biome", "check", "--write", "src/"], {

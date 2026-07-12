@@ -1,126 +1,211 @@
-# Brex API Wrapper
+# brex
 
-This project is an unofficial JS wrapper for the Brex API, maintained by [Slingshot](https://github.com/slingshot). We use this library in production for managing payouts to artists on our platform.
+[![npm version](https://img.shields.io/npm/v/brex.svg)](https://www.npmjs.com/package/brex)
+[![CI](https://github.com/slingshot/brex/actions/workflows/ci.yml/badge.svg)](https://github.com/slingshot/brex/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-This library is built in TypeScript and comes with built-in types. All requests use [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic-unfetch) and should work both in Node and in browsers.
+An unofficial TypeScript SDK for the [Brex API](https://developer.brex.com), maintained by [Slingshot](https://github.com/slingshot). Every client, method, and type is **generated deterministically from Brex's published OpenAPI specs** — the specs are vendored in this repo, generation is byte-for-byte reproducible, and CI fails if the committed code ever drifts from the specs.
 
-Install the package to get started:
-```shell
-npm install brex --save
-# OR
-yarn add brex
+- **Fully typed** — request bodies, query params, and responses are typed straight from the specs
+- **Tree-shakeable** — import one API via subpaths (`brex/payments`) and the other nine never enter your bundle (~3.5 kB min for a single API)
+- **Runs everywhere** — native `fetch`, zero runtime dependencies, ESM-only; Node ≥ 20.19 (including `require()`), Bun, Deno, browsers, and edge runtimes
+- **Auto-pagination** — every list method is both a promise and an async iterator
+- **Idempotency built in** — `Idempotency-Key` headers are sent automatically where Brex requires them
+
+> [!IMPORTANT]
+> This is an **unofficial library**, not created, maintained, or in any way connected with Brex Inc. or any associated entity. "Brex" is a registered trademark of Brex, Inc. Use of the Brex API is subject to the [Brex Access Agreement](https://www.brex.com/legal/developer-portal/). Most usage involves highly sensitive financial data — you are entirely responsible for securing it.
+
+## Install
+
+```sh
+bun add brex
+# or
+npm install brex
 ```
 
-The full wrapper API reference can be found at [slingshot.github.io/brex](https://slingshot.github.io/brex/).
+Requires Node ≥ 20.19 (or any modern runtime with `fetch`). The package is ESM-only; on Node ≥ 20.19, `require("brex")` works too.
 
-**This is an UNOFFICIAL LIBRARY and not created, maintained, or in any way connected with Brex Inc. or any associated entity.** "Brex" is a registered trademark of Brex, Inc. Use of the Brex API is subject to the [Brex Access Agreement](https://www.brex.com/legal/developer-portal/).
+## Quickstart
 
-The nature of the Brex API means that most usage will involve dealing with highly sensitive financial data and transfers. **You are entirely responsible for ensuring that proper security measures are implemented to protect all data.**
+```ts
+import { Brex } from "brex";
 
-This wrapper library is offered under the MIT license (see the [LICENSE](LICENSE) file for full text).
+const brex = new Brex({ token: process.env.BREX_TOKEN! });
 
-## Basic usage
+// Typed responses
+const me = await brex.users.getMe();
 
-Initialize an API instance using a user token, which you can generate in your Brex account dashboard (or via OAuth).
+// Create with an auto-generated Idempotency-Key
+const vendor = await brex.vendors.create({ company_name: "Acme Inc" });
 
-```typescript
-import { Brex } from 'brex';
+// One page…
+const page = await brex.expenses.list({ limit: 100 });
 
-const brex = new Brex('{{YOUR USER TOKEN HERE}}');
+// …or every item across all pages
+for await (const expense of brex.expenses.list({ "expand[]": ["merchant"] })) {
+  console.log(expense.id);
+}
 ```
 
-You can then access any endpoint using the [request](https://slingshot.github.io/brex/classes/Brex.html#request) method, which wraps the API using your provided token. For example:
+Generate a user token in your Brex dashboard, or obtain one via OAuth.
 
-```typescript
-const result = await brex.request({
-    endpoint: 'vendors',
-    method: 'GET',
-    query: {
-        name: 'Sanil Chawla',
-    },
+## Tree-shakeable subpath imports
+
+The root `Brex` class wires up all ten Brex APIs. If bundle size matters (browsers, edge functions), import only what you use — each subpath is an independent module graph:
+
+```ts
+import { createPaymentsClient } from "brex/payments";
+
+const payments = createPaymentsClient({ token: process.env.BREX_TOKEN! });
+const vendors = await payments.vendors.list({ name: "Acme" });
+```
+
+Every subpath also exports its resource classes (for composing with a shared `BrexCore`) and all of its schema types:
+
+```ts
+import type { VendorResponse, CreateVendorRequest } from "brex/payments";
+import type { ExpandableExpense } from "brex/expenses";
+```
+
+## Pagination
+
+Every list endpoint returns a `PagePromise` — await it for a single page, iterate it for items, or step through pages:
+
+```ts
+// Single page (respects your `cursor`/`limit` params)
+const page = await brex.transactions.listPrimaryCard({ limit: 50 });
+
+// All items, across pages — follows next_cursor automatically
+for await (const tx of brex.transactions.listPrimaryCard()) { /* … */ }
+
+// Page-by-page
+for await (const p of brex.transactions.listPrimaryCard().pages()) { /* … */ }
+```
+
+## Authentication
+
+Pass a static token, or a provider function (called per request — useful for OAuth token refresh):
+
+```ts
+const brex = new Brex({
+  token: async () => getFreshAccessToken(),
 });
 ```
 
-You can pass in a `query`, `body`, and/or `idempotencyKey` depending on your request. See the [ApiRequestOptions](https://slingshot.github.io/brex/interfaces/ApiRequestOptions.html) interface for more details.
+## Options
 
+```ts
+const brex = new Brex({
+  token: "…",
+  baseUrl: "staging",          // "production" (default), "staging", or any URL
+  fetch: myCustomFetch,         // inject for proxies, retries, or tests
+  defaultHeaders: { "x-app": "my-app" },
+});
+```
 
-## What's coming soon?
+Per-request options are the last argument of every method:
 
-Version 1.0.0 will include a true JS wrapper that is semantically easier to use and handles typing across requests (for example, `brex.vendors.list()` or `brex.users.invite({...})`).
+```ts
+await brex.vendors.create(
+  { company_name: "Acme Inc" },
+  {
+    idempotencyKey: "order-1234",          // else an UUID is auto-generated where required
+    signal: AbortSignal.timeout(10_000),   // abort/timeout
+    headers: { "x-trace-id": "abc" },
+  },
+);
+```
 
-This functionality will be rolled out incrementally and tracked below. The `brex.request()` method will always remain accessible as well. Contributions are always welcome.
+Retries are intentionally out of scope — wrap the injected `fetch` if you need them.
 
-### Payments API
+## Error handling
 
-#### ✅ Vendors
+Non-2xx responses throw a `BrexError`:
 
-- [x] `brex.vendors.list()`
-- [x] `brex.vendors.create()`
-- [x] `brex.vendors.get()`
-- [x] `brex.vendors.update()`
-- [x] `brex.vendors.delete()`
+```ts
+import { Brex, BrexError } from "brex";
 
-#### ✅ Transfers
+try {
+  await brex.vendors.get("vendor_id");
+} catch (error) {
+  if (error instanceof BrexError) {
+    error.status;     // HTTP status code
+    error.body;       // parsed JSON error body (or raw text)
+    error.requestId;  // x-request-id header, if present
+    error.headers;    // full response Headers
+  }
+}
+```
 
-- [x] `brex.transfers.list()`
-- [x] `brex.transfers.create()`
-- [x] `brex.transfers.get()`
+## API reference
 
-### Team API
+Namespaces and methods are derived deterministically from the specs' tags and operationIds (with a small, reviewed [overrides file](scripts/generate/overrides.ts)). Methods requiring an `Idempotency-Key` send one automatically. ~~Struck-through~~ methods are deprecated upstream.
 
-#### Users
+<!-- generated:api-table:start -->
 
-- [ ] `brex.users.list()`
-- [ ] `brex.users.invite()`
-- [ ] `brex.users.getCurrent()`
-- [ ] `brex.users.get()`
-- [ ] `brex.users.update()`
-- [ ] `brex.users.getLimit()`
-- [ ] `brex.users.setLimit()`
+| Subpath import | Namespace | Methods |
+| --- | --- | --- |
+| `brex/accounting` | `accountingIntegrations` | `create`, `disconnect`, `reactivate` |
+| `brex/accounting` | `accountingRecords` | `get`, `query`, `reportAccountingExportResults` |
+| `brex/budgets` | `budgetPrograms` | `get`, `list` |
+| `brex/budgets` | `budgetsV1` | `archive`, `create`, `get`, `list`, `update` |
+| `brex/budgets` | `budgets` | `archive`, `create`, `get`, `list`, `update` |
+| `brex/budgets` | `spendLimits` | `archive`, `create`, `get`, `list`, `update` |
+| `brex/expenses` | `cardExpenses` | ~~`get`~~, ~~`list`~~, `update` |
+| `brex/expenses` | `expenses` | `get`, `list` |
+| `brex/expenses` | `receipts` | `match`, `upload` |
+| `brex/fields` | `fieldValues` | `create`, `delete`, `get`, `list`, `update` |
+| `brex/fields` | `fields` | `create`, `delete`, `get`, `list`, `update` |
+| `brex/onboarding` | `referrals` | `createDocument`, `createRequest`, `get`, `list`, `processDelayedEINDocument` |
+| `brex/payments` | `linkedAccounts` | `list` |
+| `brex/payments` | `transfers` | `create`, `createIncoming`, `get`, `list` |
+| `brex/payments` | `vendors` | `create`, `delete`, `get`, `list`, `update` |
+| `brex/team` | `cards` | `create`, `emailNumber`, `get`, `getNumber`, `list`, `lock`, `terminate`, `unlock`, `update` |
+| `brex/team` | `companies` | `get` |
+| `brex/team` | `departments` | `create`, `get`, `list` |
+| `brex/team` | `legalEntities` | `get`, `list` |
+| `brex/team` | `locations` | `create`, `get`, `list` |
+| `brex/team` | `titles` | `create`, `get`, `list` |
+| `brex/team` | `users` | `create`, `get`, `getLimit`, `getMe`, `list`, `setLimit`, `update` |
+| `brex/transactions` | `accounts` | `get`, `getPrimary`, `list`, `listCard`, `listCashStatements`, `listPrimaryCardStatements` |
+| `brex/transactions` | `transactions` | `listCash`, `listPrimaryCard` |
+| `brex/travel` | `trips` | `get`, `getBooking`, `list`, `listBookings` |
+| `brex/webhooks` | `webhookGroups` | `addMembers`, `create`, `delete`, `get`, `list`, `listMembers`, `removeMembers` |
+| `brex/webhooks` | `webhooks` | `create`, `delete`, `get`, `list`, `listSecrets`, `update` |
 
-#### Locations
+<!-- generated:api-table:end -->
 
-- [ ] `brex.locations.list()`
-- [ ] `brex.locations.create()`
-- [ ] `brex.locations.get()`
+Full request/response types for every method live in each subpath's exported schema types (e.g. `import type { VendorResponse } from "brex/payments"`), plus the raw `paths`/`components` OpenAPI shapes (`PaymentsPaths`, `PaymentsComponents`).
 
-#### Departments
+## How generation works
 
-- [ ] `brex.departments.list()`
-- [ ] `brex.departments.create()`
-- [ ] `brex.departments.get()`
+```
+specs/*.yaml  ──bun run generate──▶  src/<api>/{types,schemas,client}.gen.ts + entries
+```
 
-#### Cards
+- The 10 OpenAPI specs are **vendored byte-for-byte** in [`specs/`](specs) and re-fetched only by a human running `bun run sync-specs`.
+- `bun run generate` is a **pure function** of the specs, the overrides file, and exactly-pinned tool versions. Running it twice produces byte-identical output.
+- CI regenerates on every PR and **fails on drift**, so the published SDK can never silently diverge from the specs it claims to implement.
+- Types come from [openapi-typescript](https://openapi-ts.dev); the thin client layer (~250 lines of hand-written runtime) is generated with method names cleaned from operationIds (`createVendor` → `vendors.create`).
 
-- [ ] `brex.cards.list()`
-- [ ] `brex.cards.create()`
-- [ ] `brex.cards.get()`
-- [ ] `brex.cards.update()`
-- [ ] `brex.cards.lock()`
-- [ ] `brex.cards.getNumber()`
-- [ ] `brex.cards.terminate()`
-- [ ] `brex.cards.unlock()`
+To pick up upstream API changes: `bun run sync-specs && bun run generate`, review the diff, commit both.
 
-#### Companies
+## Migrating from v1
 
-- [ ] `brex.companies.get()`
+v2 is a ground-up rewrite; v1's hand-written wrapper is gone.
 
-### Transactions API
+| v1 | v2 |
+| --- | --- |
+| `new Brex(token)` | `new Brex({ token })` |
+| `brex.request({ endpoint, method, … })` | Typed methods, e.g. `brex.vendors.list()` |
+| `brex.vendors.list()` (partial coverage) | Full coverage of all 10 published APIs |
+| `isomorphic-unfetch` polyfill | Native `fetch`, zero dependencies |
+| CommonJS + ESM | ESM-only (Node ≥ 20.19 `require()` still works) |
 
-#### Transactions
+## Contributing
 
-- [ ] `brex.transactions.listPrimaryCard()`
-- [ ] `brex.transactions.listCash()`
+See [CONTRIBUTING.md](CONTRIBUTING.md). Releases are automated with [Changesets](https://github.com/changesets/changesets) and published to npm with provenance.
 
-#### ✅ Accounts
+## License
 
-- [x] `brex.accounts.listCardAccounts()`
-- [x] `brex.accounts.listPrimaryCardStatements()`
-- [x] `brex.accounts.listCashAccounts()`
-- [x] `brex.accounts.listCashStatements()`
-
-### Cleanup & docs
-
-- [ ] Contribution guidelines
-- [ ] Jest tests (probably by providing a key in env; CI if possible, but could be tough without a test/sandbox API key)
-- [ ] Documentation and examples (possibly just a modified/enhanced version of the [auto-generated TypeDoc docs](https://slingshot.github.io/brex))
+[MIT](LICENSE)
