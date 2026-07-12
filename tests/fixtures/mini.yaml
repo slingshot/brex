@@ -1,0 +1,186 @@
+openapi: 3.0.1
+info:
+  title: Mini API
+  description: Hand-crafted fixture exercising every generator feature.
+  version: '0.1'
+servers:
+  - url: https://api.brex.com
+paths:
+  /v1/widgets:
+    get:
+      tags:
+        - Widgets
+      summary: List widgets
+      operationId: listWidgets
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+        - name: status[]
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: A page of widgets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_Widget_'
+      security:
+        - OAuth2:
+            - widgets.readonly
+    post:
+      tags:
+        - Widgets
+      summary: Create widget
+      operationId: createWidget
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWidgetRequest'
+      responses:
+        '200':
+          description: The created widget.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+      security:
+        - OAuth2:
+            - widgets
+  /v1/widgets/{id}:
+    get:
+      tags:
+        - Widgets
+      summary: Get widget
+      operationId: getWidgetById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The widget.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+    put:
+      tags:
+        - Widgets
+      summary: Update widget
+      operationId: updateWidget
+      deprecated: true
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWidgetRequest'
+      responses:
+        '200':
+          description: The updated widget.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+    delete:
+      tags:
+        - Widgets
+      summary: Delete widget
+      operationId: deleteWidget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Empty response.
+  /v1/widgets/archived:
+    get:
+      tags:
+        - Gadget Ops
+      summary: List archived widgets
+      operationId: listWidgets_1
+      responses:
+        '200':
+          description: All archived widgets (not paginated).
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Widget'
+components:
+  schemas:
+    Widget:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          nullable: true
+    CreateWidgetRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    Page_Widget_:
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Widget'
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/authorize
+          tokenUrl: https://example.com/token
+          scopes:
+            widgets: Manage widgets
+            widgets.readonly: Read widgets

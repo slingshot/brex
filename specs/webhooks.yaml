@@ -1,0 +1,1428 @@
+openapi: 3.0.1
+info:
+  title: Webhooks API
+  description: >
+
+    Brex uses webhooks to send real-time notifications when events happen in the
+    accounts that you manage.
+
+    Use webhook subscriptions to subscribe to different webhook events.
+  contact:
+    name: Admin
+    url: https://brex.com
+    email: developer-support@brex.com
+  version: '0.1'
+  x-logo:
+    altText: Brex Logo
+    url: https://www.brex.com/logo.png
+servers:
+  - url: https://api.brex.com
+    description: Production
+  - url: https://api-staging.brex.com
+    description: >-
+      Staging (Note: This is not a sandbox. It will not work with customer
+      tokens.)
+security:
+  - OAuth2: []
+tags:
+  - name: Webhook Subscriptions
+    description: Manage webhook subscriptions.
+  - name: Webhook Groups
+    description: Manage webhook groups.
+  - name: Schemas
+    description: Schemas.
+paths:
+  /v1/webhooks:
+    get:
+      tags:
+        - Webhook Subscriptions
+      summary: List Webhooks
+      description: List the webhooks you have registered
+      operationId: listWebhookSubscriptions
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_WebhookSubscription_'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+    post:
+      tags:
+        - Webhook Subscriptions
+      summary: Register Webhook
+      description: Register an endpoint to start receiving selected webhook events
+      operationId: createWebhookSubscription
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhookSubscriptionRequest'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscription'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+  /v1/webhooks/groups:
+    get:
+      tags:
+        - Webhook Groups
+      summary: List Webhook Groups
+      description: Lists webhook groups.
+      operationId: listWebhookGroups
+      parameters:
+        - name: cursor
+          in: query
+          description: Cursor for pagination.
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          description: >-
+            Limit for pagination. If not provided, defaults to 100. Cannot be
+            greater than 1000.
+          required: false
+          schema:
+            maximum: 1000
+            minimum: 0
+            type: integer
+            format: int32
+            default: 100
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_WebhookGroup_'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+    post:
+      tags:
+        - Webhook Groups
+      summary: Create Webhook Group
+      description: Creates a webhook group.
+      operationId: createWebhookGroup
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhookGroupRequest'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookGroup'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+  /v1/webhooks/groups/{id}:
+    get:
+      tags:
+        - Webhook Groups
+      summary: Get Webhook Group
+      description: Gets a webhook group.
+      operationId: getWebhookGroup
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the webhook group to retrieve.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookGroup'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+    delete:
+      tags:
+        - Webhook Groups
+      summary: Delete Webhook Group
+      description: Deletes a webhook group and all its members.
+      operationId: deleteWebhookGroup
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the webhook group to delete.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+  /v1/webhooks/groups/{id}/add_members:
+    post:
+      tags:
+        - Webhook Groups
+      summary: Add Webhook Group Members
+      description: Adds members to webhook groups.
+      operationId: addWebhookGroupMembers
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the webhook group to add members to.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddWebhookGroupMembersRequest'
+        required: true
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+  /v1/webhooks/groups/{id}/members:
+    get:
+      tags:
+        - Webhook Groups
+      summary: List Webhook Group Members
+      description: Lists the members currently in the specified webhook group.
+      operationId: listWebhookGroupMembers
+      parameters:
+        - name: cursor
+          in: query
+          description: Cursor for pagination.
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          description: >-
+            Limit for pagination. If not provided, defaults to 100. Cannot be
+            greater than 1000.
+          required: false
+          schema:
+            maximum: 1000
+            minimum: 0
+            type: integer
+            format: int32
+            default: 100
+        - name: id
+          in: path
+          description: The ID of the webhook group to retrieve members for.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_WebhookGroupMember_'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+  /v1/webhooks/groups/{id}/remove_members:
+    post:
+      tags:
+        - Webhook Groups
+      summary: Remove Webhook Group Members
+      description: Removes members from webhook groups.
+      operationId: removeWebhookGroupMembers
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the webhook group to remove members from.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemoveWebhookGroupMembersRequest'
+        required: true
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+  /v1/webhooks/secrets:
+    get:
+      tags:
+        - Webhook Subscriptions
+      summary: List Webhook Secrets
+      description: >
+
+        This endpoint returns a set of webhook signing secrets used to validate
+        the webhook.
+
+        Usually only one key will be returned in the response. After key
+        rotation, this endpoint will return two keys:
+
+        the new key, and the key that will be revoked soon. There will also be
+        two signatures in the 'Webhook-Signature' request header.
+
+        Your application should use all keys available to validate the webhook
+        request. If validation passes for any
+
+        of the keys returned, the webhook payload is valid.
+      operationId: listWebhookSecrets
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebhookSecret'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+  /v1/webhooks/{id}:
+    get:
+      tags:
+        - Webhook Subscriptions
+      summary: Get Webhook
+      description: Get details of a webhook
+      operationId: getWebhookSubscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscription'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+    put:
+      tags:
+        - Webhook Subscriptions
+      summary: Update Webhook
+      description: >
+        Update a webhook.
+
+        You can update the endpoint url, event types that the endpoint receives,
+        or temporarily deactivate the webhook.
+      operationId: updateWebhookSubscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWebhookSubscriptionRequest'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscription'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+    delete:
+      tags:
+        - Webhook Subscriptions
+      summary: Unregister Webhook
+      description: Unregister a webhook if you want to stop receiving webhook events
+      operationId: deleteWebhookSubscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+      security:
+        - OAuth2: []
+x-webhooks:
+  /x-webhooks/accountingRecordReadyForExport:
+    post:
+      tags:
+        - Webhook Events
+      summary: Accounting Record Ready For Export Event
+      description: A list of accounting records are ready for export.
+      operationId: accountingRecordReadyForExportEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountingRecordReadyForExport'
+        required: true
+      responses:
+        '200':
+          description: >-
+            Return this code if the callback was received and processed
+            successfully
+      security:
+        - OAuth2:
+            - accounting.record.read
+            - accounting.record.write
+  /x-webhooks/expensePaymentUpdated:
+    post:
+      tags:
+        - Webhook Events
+      summary: Expense Payment Updated Event
+      description: Expense activity on Brex Cards.
+      operationId: expensePaymentUpdatedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpensePaymentUpdated'
+        required: true
+      responses:
+        '200':
+          description: >-
+            Return this code if the callback was received and processed
+            successfully
+      security:
+        - OAuth2:
+            - expenses.card.readonly
+            - expenses.card
+  /x-webhooks/referralActivated:
+    post:
+      tags:
+        - Webhook Events
+      summary: Referral Activated Event
+      description: A referral was activated.
+      operationId: referralActivatedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReferralActivated'
+        required: true
+      responses:
+        '200':
+          description: >-
+            Return this code if the callback was received and processed
+            successfully
+      security:
+        - OAuth2:
+            - https://onboarding.brexapis.com/referrals
+  /x-webhooks/referralApplicationStatusChanged:
+    post:
+      tags:
+        - Webhook Events
+      summary: Referral Application Status Changed Event
+      description: A referral's application status changed.
+      operationId: referralApplicationStatusChangedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReferralApplicationStatusChanged'
+        required: true
+      responses:
+        '200':
+          description: >-
+            Return this code if the callback was received and processed
+            successfully
+      security:
+        - OAuth2:
+            - https://onboarding.brexapis.com/referrals
+  /x-webhooks/referralCreated:
+    post:
+      tags:
+        - Webhook Events
+      summary: Referral Created Event
+      description: A referral was created.
+      operationId: referralCreatedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReferralCreated'
+        required: true
+      responses:
+        '200':
+          description: >-
+            Return this code if the callback was received and processed
+            successfully
+      security:
+        - OAuth2:
+            - https://onboarding.brexapis.com/referrals
+  /x-webhooks/transferFailed:
+    post:
+      tags:
+        - Webhook Events
+      summary: Transfer Failed Event
+      description: >-
+        Transfer failed events for both incoming and outgoing Brex Cash
+        transactions.
+      operationId: transferFailedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferFailed'
+        required: true
+      responses:
+        '200':
+          description: >-
+            Return this code if the callback was received and processed
+            successfully
+      security:
+        - OAuth2:
+            - transfers.readonly
+            - transfers
+  /x-webhooks/transferProcessed:
+    post:
+      tags:
+        - Webhook Events
+      summary: Transfer Processed Event
+      description: >-
+        Transfer processed events for both incoming and outgoing Brex Cash
+        transactions.
+      operationId: transferProcessedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferProcessed'
+        required: true
+      responses:
+        '200':
+          description: >-
+            Return this code if the callback was received and processed
+            successfully
+      security:
+        - OAuth2:
+            - transfers.readonly
+            - transfers
+  /x-webhooks/userUpdated:
+    post:
+      tags:
+        - Webhook Events
+      summary: User Updated Event
+      description: Updates on Brex users.
+      operationId: userUpdatedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdated'
+        required: true
+      responses:
+        '200':
+          description: >-
+            Return this code if the callback was received and processed
+            successfully
+      security:
+        - OAuth2:
+            - users.readonly
+            - users
+components:
+  schemas:
+    AccountingRecordReadyForExport:
+      required:
+        - accountingRecordIds
+        - companyId
+        - event_type
+      type: object
+      properties:
+        event_type:
+          allOf:
+            - $ref: '#/components/schemas/WebhookEventType'
+            - example: ACCOUNTING_RECORD_READY_FOR_EXPORT
+        accountingRecordIds:
+          type: array
+          description: List of accounting record IDs ready for export.
+          items:
+            type: string
+        companyId:
+          type: string
+          description: >
+            This is the `id` returned in the [Get
+            Company](/openapi/team_api/#operation/getCompany) endpoint.
+
+            You can use the `company_id` to determine which access token to use
+            when you get the details from our API endpoints.
+      description: A list of accounting records are ready for export.
+      allOf:
+        - $ref: '#/components/schemas/EventWrapper'
+    AddWebhookGroupMembersRequest:
+      required:
+        - members
+      type: object
+      properties:
+        members:
+          minItems: 1
+          type: array
+          description: The list of webhook group members to add to the group.
+          items:
+            $ref: '#/components/schemas/WebhookGroupMemberInput'
+    ApplicationStatus:
+      type: string
+      description: >
+        Application status of a product.
+
+
+        `NO_ACCOUNT` - There is no active application, and the product account
+        is not provisioned.
+
+
+        `ACTIVE` - The application is approved, and the product account is
+        provisioned.
+
+
+        `NOT_SUBMITTED` - The application is started but not yet submitted.
+
+
+        `INFORMATION_PENDING` - The application is submitted and additional
+        information is requested.
+
+
+        `MANUAL_REVIEW` - The application is under manual review.
+
+
+        `PROCESSING` - The application is submitted and is under review.
+
+
+        `REJECTED` - The application is rejected.
+
+
+        `CLOSED` - The product account is closed.
+      enum:
+        - NO_ACCOUNT
+        - ACTIVE
+        - NOT_SUBMITTED
+        - INFORMATION_PENDING
+        - MANUAL_REVIEW
+        - PROCESSING
+        - REJECTED
+        - CLOSED
+    CreateWebhookGroupRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name for the webhook group.
+          example: Some Webhook Group
+    CreateWebhookSubscriptionRequest:
+      required:
+        - event_types
+        - url
+      type: object
+      properties:
+        url:
+          type: string
+          description: >-
+            The URL to which webhook events will be sent. Must be a valid HTTPS
+            URL.
+          example: https://example.com/webhook
+        group_id:
+          type: string
+          description: >-
+            ID of the webhook group to which this subscription applies, if any.
+            This is only available for partners.
+          nullable: true
+          example: wg_123
+        event_types:
+          minItems: 1
+          type: array
+          description: A list of the webhook event types this subscription will listen to.
+          items:
+            $ref: '#/components/schemas/WebhookEventType'
+    EventWrapper:
+      type: object
+    ExpensePaymentStatus:
+      type: string
+      description: >-
+        `PENDING`:The transaction is yet to be captured. It may be approved, yet
+        to be approved, or yet to be declined.
+
+
+        `DECLINED`: The transaction was declined.
+            
+      enum:
+        - PENDING
+        - DECLINED
+    ExpensePaymentType:
+      type: string
+      description: >-
+        `PURCHASE`: A pending transaction for making a purchase.
+
+
+        `REFUND`: A pending transaction for a refund.
+
+
+        `WITHDRAWAL`: A pending transaction for a withdrawal.
+
+
+        `DECLINED`: A pending transaction that was declined and will not be
+        completed.
+            
+      enum:
+        - PURCHASE
+        - REFUND
+        - WITHDRAWAL
+        - DECLINED
+    ExpensePaymentUpdated:
+      required:
+        - card_id
+        - company_id
+        - event_type
+        - expense_id
+        - merchant
+        - payment_description
+        - payment_status
+        - payment_status_reason
+        - payment_type
+        - version
+      type: object
+      properties:
+        event_type:
+          $ref: '#/components/schemas/WebhookEventType'
+        expense_id:
+          type: string
+          description: Unique ID associated with the expense.
+        payment_status:
+          $ref: '#/components/schemas/ExpensePaymentStatus'
+        payment_type:
+          $ref: '#/components/schemas/ExpensePaymentType'
+        company_id:
+          type: string
+          description: >
+            This is the `id` returned in the [Get
+            Company](/openapi/team_api/#operation/getCompany) endpoint.
+
+            You can use the `company_id` to determine which access token to use
+            when you get the details from our API endpoints.
+        purchased_at:
+          type: string
+          description: The time the purchase was made.
+          format: date-time
+          nullable: true
+        amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: Succeeded by the billing_amount field.
+              deprecated: true
+        original_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >-
+                The original amount of the expense is the amount that the
+                employee submitted or incurred for reimbursements or card
+                spends.
+        billing_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >-
+                The billing amount of the expense is the amount that the entity
+                is charged, on the entity's currency, for reimbursements or card
+                spends.
+        payment_description:
+          type: string
+          description: Succeeded by the merchant::raw_descriptor field.
+          deprecated: true
+        card_id:
+          type: string
+          description: The ID of the card that is associated with the expense.
+        merchant:
+          allOf:
+            - $ref: '#/components/schemas/Merchant'
+            - description: The merchant associated with the expense.
+        payment_status_reason:
+          $ref: '#/components/schemas/PaymentStatusReason'
+        payment_authorization_code:
+          type: string
+          description: The authorization code of the associated card expense.
+          nullable: true
+        version:
+          minimum: 1
+          type: integer
+          description: >-
+            Version of this expense. This value starts at 1 and is incremented
+            by 1 with every update.
+          format: int32
+          example: 1
+      description: |-
+        The webhook will be sent when an expense payment changes status.
+         Subscription must be registered with a user with the CARD_ADMIN role.
+      allOf:
+        - $ref: '#/components/schemas/EventWrapper'
+    Merchant:
+      required:
+        - country
+        - mcc
+        - raw_descriptor
+      type: object
+      properties:
+        raw_descriptor:
+          type: string
+          description: Merchant descriptor, it can be the merchant name.
+        mcc:
+          type: string
+          description: >-
+            A four-digit number listed in ISO 18245 for retail financial
+            services, e.g. 4121 for Taxicabs and Rideshares. Please refer to
+            https://en.wikipedia.org/wiki/Merchant_category_code for more
+            details.
+        country:
+          type: string
+          description: Merchant's country, in ISO 3166-1 alpha-3 format.
+    Money:
+      required:
+        - amount
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: >-
+            The amount of money, in the smallest denomination of the currency
+            indicated by currency. For example, when currency is USD, amount is
+            in cents.
+          format: int64
+          example: 700
+        currency:
+          type: string
+          description: The type of currency, in ISO 4217 format.
+          nullable: true
+          example: USD
+          default: USD
+      description: >
+
+        Money fields can be signed or unsigned. Fields are signed (an unsigned
+        value will be interpreted as positive). The amount of money will be
+        represented in the smallest denomination
+
+        of the currency indicated. For example, USD 7.00 will be represented in
+        cents with an amount of 700.
+    Page_WebhookGroupMember_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookGroupMember'
+    Page_WebhookGroup_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookGroup'
+    Page_WebhookSubscription_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookSubscription'
+    PaymentStatusReason:
+      type: string
+      description: The reason for the payment's status.
+      enum:
+        - OTHER
+        - APPROVED
+        - EXCEEDED_BUDGET_LIMIT
+        - BUDGET_EXPIRED
+        - NO_BUDGET
+        - BUDGET_NOT_YET_STARTED
+        - BUDGET_CATEGORY_RESTRICTION
+        - BUDGET_MERCHANT_RESTRICTION
+        - SUSPECTED_FRAUD
+        - EXCEEDED_GLOBAL_LIMIT
+        - EXCEEDED_USER_LIMIT
+        - EXCEEDED_CARD_LIMIT
+        - INVALID_EXPIRATION_DATE
+        - CARD_NOT_ACTIVE
+        - INVALID_CARD_CREDENTIALS
+        - INVALID_BILLING_ADDRESS
+        - CARD_SUSPENDED
+        - CARD_TERMINATED
+        - CARD_EXPIRED
+        - MCC_BLOCKED
+        - USER_SUSPENDED
+        - INVALID_PIN
+        - INVALID_CVV
+        - EXCEEDED_PIN_ATTEMPTS
+        - INSIDE_SANCTIONED_COUNTRY
+        - SOFT_EXPIRATION
+        - TRANSFERRED_CARD_NEW_MERCHANT
+        - EXCEEDED_ANCESTOR_BUDGET_LIMIT
+        - EXCEEDED_BUDGET_TRANSACTION_LIMIT
+        - TOS_BLOCKED
+        - COMPLIANCE_BLOCKED
+    PaymentType:
+      type: string
+      description: >-
+        Only ACH, DOMESTIC_WIRE, CHEQUE, INTERNATIONAL_WIRE, BOOK_TRANSFER, and
+        STABLECOIN details can be retrieved from the Payments API.
+      enum:
+        - ACH
+        - DOMESTIC_WIRE
+        - CHEQUE
+        - INTERNATIONAL_WIRE
+        - BOOK_TRANSFER
+        - STABLECOIN
+        - ACH_RETURN
+        - WIRE_RETURN
+        - CHEQUE_RETURN
+    ProductApplication:
+      required:
+        - cash
+      type: object
+      properties:
+        cash:
+          $ref: '#/components/schemas/ApplicationStatus'
+      description: The product application details for the referral.
+    ReferralActivated:
+      required:
+        - event_type
+        - referral_id
+      type: object
+      properties:
+        event_type:
+          $ref: '#/components/schemas/WebhookEventType'
+        referral_id:
+          type: string
+          description: The referral ID
+      description: The webhook will be sent when a user signs up with the referral link.
+      allOf:
+        - $ref: '#/components/schemas/EventWrapper'
+    ReferralApplicationStatusChanged:
+      required:
+        - application
+        - event_type
+        - referral_id
+      type: object
+      properties:
+        event_type:
+          $ref: '#/components/schemas/WebhookEventType'
+        referral_id:
+          type: string
+          description: The referral ID
+        application:
+          $ref: '#/components/schemas/ProductApplication'
+      description: The webhook will be sent when the application status is changed.
+      allOf:
+        - $ref: '#/components/schemas/EventWrapper'
+    ReferralCreated:
+      required:
+        - event_type
+        - referral_id
+      type: object
+      properties:
+        event_type:
+          $ref: '#/components/schemas/WebhookEventType'
+        referral_id:
+          type: string
+          description: The referral ID
+      description: The webhook will be sent when a referral is created.
+      allOf:
+        - $ref: '#/components/schemas/EventWrapper'
+    RemoveWebhookGroupMembersRequest:
+      required:
+        - members
+      type: object
+      properties:
+        members:
+          minItems: 1
+          type: array
+          description: The list of webhook group members to remove from the group.
+          items:
+            $ref: '#/components/schemas/WebhookGroupMemberInput'
+    TransferFailed:
+      required:
+        - company_id
+        - event_type
+        - payment_type
+        - transfer_id
+      type: object
+      properties:
+        event_type:
+          $ref: '#/components/schemas/WebhookEventType'
+        transfer_id:
+          type: string
+          description: The transfer ID
+        payment_type:
+          $ref: '#/components/schemas/PaymentType'
+        return_for_id:
+          type: string
+          description: >-
+            The original transaction ID that is returned when the payment type
+            is ACH_RETURN, WIRE_RETURN and CHEQUE_RETURN.
+          nullable: true
+        company_id:
+          type: string
+          description: >-
+            This is the `id` returned in the [Get
+            Company](/openapi/team_api/#operation/getCompany) endpoint. You can
+            use the `company_id` to determine which access token to use when you
+            get the details from our API endpoints.
+      description: The webhook will be sent when a transfer failed.
+      allOf:
+        - $ref: '#/components/schemas/EventWrapper'
+    TransferProcessed:
+      required:
+        - company_id
+        - event_type
+        - payment_type
+        - transfer_id
+      type: object
+      properties:
+        event_type:
+          $ref: '#/components/schemas/WebhookEventType'
+        transfer_id:
+          type: string
+          description: The transfer ID
+        payment_type:
+          $ref: '#/components/schemas/PaymentType'
+        return_for_id:
+          type: string
+          description: >-
+            The original transaction ID that is returned when the payment type
+            is ACH_RETURN, WIRE_RETURN and CHEQUE_RETURN.
+          nullable: true
+        company_id:
+          type: string
+          description: >-
+            This is the `id` returned in the [Get
+            Company](/openapi/team_api/#operation/getCompany) endpoint. You can
+            use the `company_id` to determine which access token to use when you
+            get the details from our API endpoints.
+      description: The webhook will be sent when a transfer is processed.
+      allOf:
+        - $ref: '#/components/schemas/EventWrapper'
+    UpdateWebhookSubscriptionRequest:
+      required:
+        - event_types
+        - status
+        - url
+      type: object
+      properties:
+        url:
+          type: string
+          description: >-
+            The URL to which webhook events will be sent. Must be a valid HTTPS
+            URL.
+          example: https://example.com/webhook
+        group_id:
+          type: string
+          description: >-
+            ID of the webhook group to which this subscription applies, if any.
+            This is only available for partners.
+          nullable: true
+          example: wg_123
+        event_types:
+          type: array
+          description: A list of the webhook event types this subscription will listen to.
+          items:
+            $ref: '#/components/schemas/WebhookEventType'
+        status:
+          allOf:
+            - $ref: '#/components/schemas/WebhookSubscriptionStatus'
+            - description: The status to set for this webhook subscription.
+              example: ACTIVE
+    UserAttributes:
+      type: string
+      enum:
+        - STATUS
+        - MANAGER_ID
+        - DEPARTMENT_ID
+        - LOCATION_ID
+    UserUpdated:
+      required:
+        - company_id
+        - event_type
+        - updated_attributes
+        - user_id
+      type: object
+      properties:
+        event_type:
+          $ref: '#/components/schemas/WebhookEventType'
+        user_id:
+          type: string
+        company_id:
+          type: string
+        updated_attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAttributes'
+      description: The webhook will be sent when a user is updated.
+      allOf:
+        - $ref: '#/components/schemas/EventWrapper'
+    WebhookEventType:
+      type: string
+      enum:
+        - REFERRAL_CREATED
+        - REFERRAL_ACTIVATED
+        - REFERRAL_APPLICATION_STATUS_CHANGED
+        - TRANSFER_PROCESSED
+        - TRANSFER_FAILED
+        - EXPENSE_PAYMENT_UPDATED
+        - USER_UPDATED
+        - EMBEDDED_CARD_TRANSACTION_UPDATED
+        - EMBEDDED_CARD_UPDATED
+        - EMBEDDED_ACCOUNT_UPDATED
+        - EMBEDDED_CARD_SHIPPING_UPDATED
+        - EMBEDDED_DISPUTE_UPDATED
+        - PARTNERSHIP_INTEGRATION_CONNECTION_UPDATED
+        - EMBEDDED_CARD_AUTHORIZATION
+        - EMBEDDED_FRAUD_ALERT
+        - EMBEDDED_BILLING_GROUP_UPDATED
+        - EMBEDDED_LEGAL_ENTITY_UPDATED
+        - EMBEDDED_BILLING_STATEMENT_UPDATED
+        - EMBEDDED_USER_STATUS_UPDATED
+        - ACCOUNTING_RECORD_READY_FOR_EXPORT
+    WebhookGroup:
+      title: Webhook Group
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: The ID of the webhook group.
+          example: wg_123
+        name:
+          minLength: 1
+          type: string
+          description: The name for the webhook group.
+          example: Some Webhook Group
+      description: >-
+        A webhook group, which can be used by webhook subscriptions to target
+        only the webhook group members. When an event occurs and it belongs to a
+        member of the group, the webhooks will be sent only to the subscriptions
+        that are associated with the group. If there is no group associated with
+        the event, then the webhook will be sent to all subscriptions that are
+        not associated with any group. Webhook groups are only available for
+        partners.
+      x-tags:
+        - Schemas
+    WebhookGroupMember:
+      title: Webhook Group Member
+      required:
+        - group_id
+        - member_id
+        - member_type
+      type: object
+      properties:
+        group_id:
+          minLength: 1
+          type: string
+          description: The ID of the webhook group this member belongs to.
+          example: wg_123
+        member_type:
+          allOf:
+            - $ref: '#/components/schemas/WebhookGroupMemberType'
+            - description: The type of webhook group member.
+              example: ACCOUNT
+        member_id:
+          minLength: 1
+          type: string
+          description: The ID of the webhook group member.
+          example: cuacc_123
+      description: A member of a webhook group.
+      x-tags:
+        - Schemas
+    WebhookGroupMemberInput:
+      required:
+        - member_id
+        - member_type
+      type: object
+      properties:
+        member_type:
+          allOf:
+            - $ref: '#/components/schemas/WebhookGroupMemberType'
+            - description: The type of webhook group member.
+        member_id:
+          minLength: 1
+          type: string
+          description: The ID of the webhook group member.
+    WebhookGroupMemberType:
+      type: string
+      description: The type of a webhook group member.
+      enum:
+        - ACCOUNT
+      x-enumDescriptions:
+        ACCOUNT: The webhook group member is a customer account.
+    WebhookSecret:
+      title: Webhook Secret
+      required:
+        - secret
+        - status
+      type: object
+      properties:
+        secret:
+          minLength: 1
+          type: string
+          description: The payload of the secret to be used for webhook validation.
+          example: whsec_123
+        status:
+          allOf:
+            - $ref: '#/components/schemas/WebhookSecretStatus'
+            - description: The status of this webhook secret.
+      description: >-
+        A webhook secret, which can be used to validate that incoming webhook
+        messages were sent by Brex.
+      x-tags:
+        - Schemas
+    WebhookSecretStatus:
+      type: string
+      description: The status of a webhook secret.
+      enum:
+        - ACTIVE
+        - PENDING_REVOKE
+        - REVOKED
+      x-enumDescriptions:
+        ACTIVE: >-
+          The webhook secret is active and can be used to validate webhooks from
+          Brex.
+        PENDING_REVOKE: >-
+          The webhook secret is still active, but it will soon be revoked. This
+          may happen during key rotations.
+        REVOKED: >-
+          The webhook secret is no longer active. It cannot be used to validate
+          webhooks from Brex.
+    WebhookSubscription:
+      title: Webhook Subscription
+      required:
+        - event_types
+        - id
+        - status
+        - url
+      type: object
+      properties:
+        id:
+          minLength: 1
+          type: string
+          description: ID of the webhook subscription.
+          example: wsub_123
+        group_id:
+          type: string
+          description: ID of the webhook group to which this subscription applies, if any.
+          nullable: true
+          example: wg_123
+        url:
+          type: string
+          description: >-
+            The URL to which webhook events will be sent. Must be a valid HTTPS
+            URL.
+          example: https://example.com/webhook
+        event_types:
+          type: array
+          description: List of event types that this webhook subscription listens to.
+          example: '["EXPENSE_PAYMENT_UPDATED"]'
+          items:
+            $ref: '#/components/schemas/WebhookEventType'
+        status:
+          allOf:
+            - $ref: '#/components/schemas/WebhookSubscriptionStatus'
+            - description: The status of this webhook subscription.
+              example: ACTIVE
+      description: >-
+        A webhook subscription. When events of the specified event types occur,
+        they will be sent to the given URL. If the subscription applies to a
+        webhook group, then only events that apply to the members of that group
+        will be sent. If it does not apply to any group, then only events that
+        don't apply to any specific group will be sent. Webhook groups are only
+        available for partners.
+      x-tags:
+        - Schemas
+    WebhookSubscriptionStatus:
+      type: string
+      description: The status of a webhook subscription.
+      enum:
+        - ACTIVE
+        - INACTIVE
+      x-enumDescriptions:
+        ACTIVE: >-
+          The webhook subscription is active and the associated URL will receive
+          the subscribed event types.
+        INACTIVE: The webhook subscription is no longer active.
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: OAuth2 security scheme
+      flows:
+        clientCredentials:
+          tokenUrl: https://accounts-api.brex.com/oauth2/default/v1/token
+          scopes:
+            openid: openid
+            offline_access: offline access
+        authorizationCode:
+          authorizationUrl: https://accounts-api.brex.com/oauth2/default/v1/authorize
+          tokenUrl: https://accounts-api.brex.com/oauth2/default/v1/token
+          scopes:
+            openid: openid
+            offline_access: offline access
+x-explorer-enabled: false

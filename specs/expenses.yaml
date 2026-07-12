@@ -1,0 +1,1945 @@
+openapi: 3.0.1
+info:
+  title: Expenses API
+  description: |
+
+    The Expenses API allows you to manage accounting and expenses information.
+  contact:
+    name: Admin
+    url: https://brex.com
+    email: developer-support@brex.com
+  version: '0.1'
+  x-logo:
+    altText: Brex Logo
+    url: https://www.brex.com/logo.png
+servers:
+  - url: https://api.brex.com
+    description: Production
+  - url: https://api-staging.brex.com
+    description: >-
+      Staging (Note: This is not a sandbox. It will not work with customer
+      tokens.)
+security:
+  - OAuth2: []
+tags:
+  - name: Card Expenses
+    description: View and manage card expenses data.
+  - name: Receipt Match
+    description: Upload receipt and match automatically.
+paths:
+  /v1/expenses:
+    get:
+      tags:
+        - Expenses
+      summary: List expenses
+      description: >-
+        List expenses under the same account. Admin and bookkeeper have access
+        to any expense, and regular users can only access their own.
+      operationId: listExpenses
+      parameters:
+        - name: expand[]
+          in: query
+          description: >-
+            Get additional details for the expense, e.g. merchant mcc code, by
+            passing in `expand[]=merchant`. Query parameters include `location`,
+            `department`, `merchant`, `receipts.download_uris`, `user`,
+            `budget`, `payment`, `spending_entity` and `policy`.
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+          example: |
+
+            ?expand[]=merchant&expand[]=location
+        - name: user_id[]
+          in: query
+          description: Get expenses belong to provided user(s).
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+        - name: parent_expense_id[]
+          in: query
+          description: Get itemized expenses belong to provided parent expenses ID(s).
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+        - name: budget_id[]
+          in: query
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+        - name: spending_entity_id[]
+          in: query
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+        - name: expense_type[]
+          in: query
+          schema:
+            type: array
+            nullable: true
+            items:
+              $ref: '#/components/schemas/ExpenseType'
+        - name: status[]
+          in: query
+          schema:
+            type: array
+            nullable: true
+            items:
+              $ref: '#/components/schemas/ExpenseStatus'
+        - name: payment_status[]
+          in: query
+          schema:
+            type: array
+            nullable: true
+            items:
+              $ref: '#/components/schemas/ExpensePaymentStatus'
+        - name: purchased_at_start
+          in: query
+          description: >
+
+            Shows only expenses with a `purchased_at` on or after this
+            date-time. This parameter is the date-time notation as defined by
+            [RFC 3339, section
+            5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-01T23:59:59.999
+        - name: purchased_at_end
+          in: query
+          description: >
+
+            Shows only expenses with a `purchased_at` on or before this
+            date-time. This parameter is the date-time notation as defined by
+            [RFC 3339, section
+            5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-10T23:59:59.999
+        - name: updated_at_start
+          in: query
+          description: >
+
+            Shows only expenses with a `updated_at` on or after this date-time.
+            This parameter is the date-time notation as defined by [RFC 3339,
+            section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-01T23:59:59.999
+        - name: updated_at_end
+          in: query
+          description: >
+
+            Shows only expenses with a `updated_at` on or before this date-time.
+            This parameter is the date-time notation as defined by [RFC 3339,
+            section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-10T23:59:59.999
+        - name: payment_posted_at_start
+          in: query
+          description: >
+
+            Shows only expenses with a `payment_posted_at` on or after this
+            date-time. This parameter is the date-time notation as defined by
+            [RFC 3339, section
+            5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-01T23:59:59.999
+        - name: payment_posted_at_end
+          in: query
+          description: >
+
+            Shows only expenses with a `payment_posted_at` on or before this
+            date-time. This parameter is the date-time notation as defined by
+            [RFC 3339, section
+            5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-10T23:59:59.999
+        - name: load_custom_fields
+          in: query
+          description: Load custom fields for the expenses.
+          schema:
+            type: boolean
+            nullable: true
+        - name: cursor
+          in: query
+          description: >
+
+            The cursor to use for pagination. This is the `next_cursor` value
+            returned from the previous response.
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          description: >
+
+            Controls the maximum number of expenses returned in the response,
+            can't be greater than 100
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+      responses:
+        '200':
+          description: List expenses response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_ExpandableExpense_'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - OAuth2:
+            - expenses.card.readonly
+            - expenses.card
+  /v1/expenses/card:
+    get:
+      tags:
+        - Card Expenses
+      summary: List card expenses
+      description: >-
+        This endpoint is deprecated. Use the "List expenses" (`GET
+        /v1/expenses`) endpoint instead.
+      operationId: listExpenses_1
+      parameters:
+        - name: expand[]
+          in: query
+          description: >-
+            Get additional details for the expense, e.g. merchant mcc code, by
+            passing in `expand[]=merchant`. Query parameters include `location`,
+            `department`, `merchant`, `receipts.download_uris`, `user`,
+            `budget`, `payment`, `spending_entity` and `policy`.
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+          example: |
+
+            ?expand[]=merchant&expand[]=location
+        - name: user_id[]
+          in: query
+          description: Get expenses belong to provided user(s).
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+        - name: parent_expense_id[]
+          in: query
+          description: Get itemized expenses belong to provided parent expenses ID(s).
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+        - name: budget_id[]
+          in: query
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+        - name: spending_entity_id[]
+          in: query
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+        - name: status[]
+          in: query
+          schema:
+            type: array
+            nullable: true
+            items:
+              $ref: '#/components/schemas/ExpenseStatus'
+        - name: payment_status[]
+          in: query
+          schema:
+            type: array
+            nullable: true
+            items:
+              $ref: '#/components/schemas/ExpensePaymentStatus'
+        - name: purchased_at_start
+          in: query
+          description: >
+
+            Shows only expenses with a `purchased_at` on or after this
+            date-time. This parameter is the date-time notation as defined by
+            [RFC 3339, section
+            5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-01T23:59:59.999
+        - name: purchased_at_end
+          in: query
+          description: >
+
+            Shows only expenses with a `purchased_at` on or before this
+            date-time. This parameter is the date-time notation as defined by
+            [RFC 3339, section
+            5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-10T23:59:59.999
+        - name: updated_at_start
+          in: query
+          description: >
+
+            Shows only expenses with a `updated_at` on or after this date-time.
+            This parameter is the date-time notation as defined by [RFC 3339,
+            section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-01T23:59:59.999
+        - name: updated_at_end
+          in: query
+          description: >
+
+            Shows only expenses with a `updated_at` on or before this date-time.
+            This parameter is the date-time notation as defined by [RFC 3339,
+            section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-10T23:59:59.999
+        - name: payment_posted_at_start
+          in: query
+          description: >
+
+            Shows only expenses with a `payment_posted_at` on or after this
+            date-time. This parameter is the date-time notation as defined by
+            [RFC 3339, section
+            5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-01T23:59:59.999
+        - name: payment_posted_at_end
+          in: query
+          description: >
+
+            Shows only expenses with a `payment_posted_at` on or before this
+            date-time. This parameter is the date-time notation as defined by
+            [RFC 3339, section
+            5.6](https://tools.ietf.org/html/rfc3339#section-5.6), e.g.
+            2022-11-12T23:59:59.999
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+          example: |
+
+            2023-01-10T23:59:59.999
+        - name: load_custom_fields
+          in: query
+          description: Load custom fields for the expenses.
+          schema:
+            type: boolean
+            nullable: true
+        - name: cursor
+          in: query
+          description: >
+
+            The cursor to use for pagination. This is the `next_cursor` value
+            returned from the previous response.
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          description: >
+
+            Controls the maximum number of expenses returned in the response,
+            can't be greater than 100
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+      responses:
+        '200':
+          description: List expenses response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_ExpandableExpense_'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: true
+      security:
+        - OAuth2:
+            - expenses.card.readonly
+            - expenses.card
+  /v1/expenses/card/receipt_match:
+    post:
+      tags:
+        - Receipt Match
+      summary: Create a new receipt match
+      description: >
+
+        The `uri` will be a pre-signed S3 URL allowing you to upload the receipt
+        securely. This URL can only be used for a `PUT` operation and expires 30
+        minutes after its creation. Once your upload is complete, we will try to
+        match the receipt with existing expenses.
+
+
+        Refer to these
+        [docs](https://docs.aws.amazon.com/AmazonS3/latest/dev/PresignedUrlUploadObject.html)
+        on how to upload to this pre-signed S3 URL. We highly recommend using
+        one of AWS SDKs if they're available for your language to upload these
+        files.
+      operationId: receiptMatch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceiptMatchRequest'
+        required: true
+      responses:
+        '201':
+          description: Create a new receipt match response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAsyncFileUploadResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+  /v1/expenses/card/{expense_id}:
+    get:
+      tags:
+        - Card Expenses
+      summary: Get a card expense
+      description: >-
+        This endpoint is deprecated. Use the "Get an expense" (`GET
+        /v1/expenses/{id}`) endpoint instead.
+      operationId: getCardExpense
+      parameters:
+        - name: expense_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: expand[]
+          in: query
+          description: >-
+            Get additional details for the expense, e.g. merchant mcc code, by
+            passing in `expand[]=merchant`. Query parameters include `location`,
+            `department`, `merchant`, `receipts.download_uris`, `user`,
+            `budget`, `payment`, `spending_entity` and `policy`.
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+          example: |
+
+            ?expand[]=merchant&expand[]=location
+        - name: load_custom_fields
+          in: query
+          description: Load custom fields for the expense.
+          schema:
+            type: boolean
+            nullable: true
+      responses:
+        '200':
+          description: Get an expense response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpandableExpense'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      deprecated: true
+      security:
+        - OAuth2:
+            - expenses.card.readonly
+            - expenses.card
+    put:
+      tags:
+        - Card Expenses
+      summary: Update an expense
+      description: >-
+        Update an expense. Admin and bookkeeper have access to any expense, and
+        regular users can only access their own.
+      operationId: updateExpense
+      parameters:
+        - name: expense_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExpenseRequest'
+        required: true
+      responses:
+        '200':
+          description: Update an expense response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      security:
+        - OAuth2:
+            - expenses.card
+  /v1/expenses/card/{expense_id}/receipt_upload:
+    post:
+      tags:
+        - Receipt Upload
+      summary: Create a new receipt upload
+      description: >
+
+        The `uri` will be a pre-signed S3 URL allowing you to upload the receipt
+        securely. This URL can only be used for a `PUT` operation and expires 30
+        minutes after its creation. Once your upload is complete, we will try to
+        match the receipt with existing expenses.
+
+
+        Refer to these
+        [docs](https://docs.aws.amazon.com/AmazonS3/latest/dev/PresignedUrlUploadObject.html)
+        on how to upload to this pre-signed S3 URL. We highly recommend using
+        one of AWS SDKs if they're available for your language to upload these
+        files.
+      operationId: receiptUpload
+      parameters:
+        - name: expense_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceiptUploadRequest'
+        required: true
+      responses:
+        '201':
+          description: Upload a new receipt response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAsyncFileUploadResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+  /v1/expenses/{id}:
+    get:
+      tags:
+        - Expenses
+      summary: Get an expense
+      description: Get an expense by its ID.
+      operationId: getExpense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: expand[]
+          in: query
+          description: >-
+            Get additional details for the expense, e.g. merchant mcc code, by
+            passing in `expand[]=merchant`. Query parameters include `location`,
+            `department`, `merchant`, `receipts.download_uris`, `user`,
+            `budget`, `payment`, `spending_entity` and `policy`.
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: string
+          example: |
+
+            ?expand[]=merchant&expand[]=location
+        - name: load_custom_fields
+          in: query
+          description: Load custom fields for the expense.
+          schema:
+            type: boolean
+            nullable: true
+      responses:
+        '200':
+          description: Get an expense response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpandableExpense'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      security:
+        - OAuth2:
+            - expenses.card.readonly
+            - expenses.card
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        line1:
+          type: string
+          description: Address line 1, no PO Box.
+          nullable: true
+        line2:
+          type: string
+          description: Address line 2 (e.g., apartment, suite, unit, or building).
+          nullable: true
+        city:
+          type: string
+          description: City, district, suburb, town, or village.
+          nullable: true
+        state:
+          type: string
+          description: >-
+            For US-addressed the 2-letter State abbreviation. For
+            international-addresses the county, providence, or region.
+          nullable: true
+        country:
+          type: string
+          description: Two-letter country code (ISO 3166-1 alpha-2).
+          nullable: true
+        postal_code:
+          type: string
+          description: ZIP or postal code.
+          nullable: true
+        phone_number:
+          type: string
+          description: Phone number.
+          nullable: true
+      description: >-
+        Company business address (must be in the US; no PO box or
+        virtual/forwarding addresses allowed).
+    ApprovalStepDetails:
+      type: object
+      properties:
+        pending_reviewers:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/User'
+        reviewer:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/User'
+        copilot_reviewer:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/User'
+        status:
+          type: string
+          nullable: true
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+    BooleanListValue:
+      title: Boolean list value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: array
+          nullable: true
+          items:
+            type: boolean
+            description: The data of the custom field.
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - BOOLEAN
+      description: Boolean list value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.MultipleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    BooleanValue:
+      title: Boolean value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: boolean
+          description: The data of the custom field.
+          nullable: true
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - BOOLEAN
+      description: Boolean value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.SingleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    Budget:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: |
+
+            Unique ID for the Budget.
+        name:
+          type: string
+          description: |
+
+            Name for the Budget.
+    CardPaymentInstrument:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PaymentInstrument'
+        - required:
+            - id
+            - type
+          properties:
+            type:
+              $ref: '#/components/schemas/PaymentInstrumentType'
+            id:
+              type: string
+              description: Unique ID for the card.
+    Category:
+      type: string
+      description: The category of expenses.
+      enum:
+        - ADVERTISING_AND_MARKETING
+        - GROCERY
+        - TELEPHONY
+        - OFFICE_SUPPLIES
+        - PRIVATE_AIR_TRAVEL
+        - CLOTHING
+        - CAR_RENTAL
+        - VEHICLE_EXPENSES
+        - RESTAURANTS
+        - GAMBLING
+        - FLOWERS
+        - ELECTRONICS
+        - LEGAL_SERVICES
+        - UTILITIES
+        - FURNITURE
+        - BARS_AND_NIGHTLIFE
+        - LAUNDRY
+        - EVENT_EXPENSES
+        - SHIPPING
+        - OTHER_TRAVEL_EXPENSES
+        - CHARITY
+        - SOFTWARE_NON_RECURRING
+        - LODGING
+        - FACILITIES_EXPENSES
+        - SERVERS
+        - CONFERENCES
+        - FOOD_DELIVERY
+        - RENT
+        - AIRLINE_EXPENSES
+        - OTHER_BUSINESS_EXPENSES
+        - BANK_AND_FINANCIAL_FEES
+        - BOOKS_AND_NEWSPAPERS
+        - CONSULTANT_AND_CONTRACTOR
+        - CORPORATE_INSURANCE
+        - DIGITAL_GOODS
+        - FEES_AND_LICENSES_AND_TAXES
+        - GAS_AND_FUEL
+        - GENERAL_MERCHANDISE
+        - MEDICAL
+        - MEMBERSHIPS_AND_CLUBS
+        - PARKING_EXPENSES
+        - POLITICAL_DONATIONS
+        - PUBLIC_TRANSPORTATION
+        - RECURRING_SOFTWARE_AND_SAAS
+        - RIDESHARE_AND_TAXI
+        - TOLL_AND_BRIDGE_FEES
+        - TRAINING_AND_EDUCATION
+        - TRAVEL_WIFI
+    CreateAsyncFileUploadResponse:
+      required:
+        - id
+        - uri
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the request.
+        uri:
+          type: string
+          description: |
+            The pre-signed S3 link that should be used to upload the file.
+            The maximum size accepted for this document is 50 MB.
+      description: |
+        The pre-signed file upload URI and unique identifier of the request.
+    CustomField:
+      required:
+        - key
+        - value
+      type: object
+      properties:
+        key:
+          type: string
+          description: The key of the custom field.
+        value:
+          allOf:
+            - $ref: '#/components/schemas/CustomField.ValueWrapper'
+            - description: The value of the custom field.
+              oneOf:
+                - $ref: '#/components/schemas/StringValue'
+                - $ref: '#/components/schemas/DecimalValue'
+                - $ref: '#/components/schemas/BooleanValue'
+                - $ref: '#/components/schemas/EnumValue'
+                - $ref: '#/components/schemas/TimestampValue'
+                - $ref: '#/components/schemas/DateValue'
+                - $ref: '#/components/schemas/MoneyValue'
+                - $ref: '#/components/schemas/OptionStringValue'
+                - $ref: '#/components/schemas/StringListValue'
+                - $ref: '#/components/schemas/DecimalListValue'
+                - $ref: '#/components/schemas/BooleanListValue'
+                - $ref: '#/components/schemas/EnumListValue'
+                - $ref: '#/components/schemas/TimestampListValue'
+                - $ref: '#/components/schemas/DateListValue'
+                - $ref: '#/components/schemas/MoneyListValue'
+                - $ref: '#/components/schemas/OptionStringListValue'
+    CustomField.ValueWrapper:
+      required:
+        - data_type
+        - value_type
+      type: object
+      properties:
+        value_type:
+          allOf:
+            - $ref: '#/components/schemas/CustomFieldValueType'
+            - description: The type of the custom field value.
+        data_type:
+          allOf:
+            - $ref: '#/components/schemas/CustomFieldDataType'
+            - description: The type of the custom field data.
+      description: Base class for custom field values
+    CustomField.ValueWrapper.MultipleValueWrapper:
+      required:
+        - value_type
+      type: object
+      properties:
+        value_type:
+          allOf:
+            - $ref: '#/components/schemas/CustomFieldValueType'
+            - description: The type of the custom field value.
+      description: Multiple value wrapper for custom fields
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    CustomField.ValueWrapper.SingleValueWrapper:
+      required:
+        - value_type
+      type: object
+      properties:
+        value_type:
+          allOf:
+            - $ref: '#/components/schemas/CustomFieldValueType'
+            - description: The type of the custom field value.
+      description: Single value wrapper for custom fields
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    CustomFieldDataType:
+      required:
+        - 'true'
+      type: string
+      description: The type of the custom field data.
+      enum:
+        - STRING
+        - DECIMAL
+        - BOOLEAN
+        - ENUM
+        - TIMESTAMP
+        - DATE
+        - MONEY
+        - OPTION_STRING
+    CustomFieldValueType:
+      required:
+        - 'true'
+      type: string
+      description: The type of the custom field value.
+      enum:
+        - SINGLE_VALUE
+        - LIST
+    CustomerLocation:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the location.
+        name:
+          type: string
+          description: The name of the location.
+      description: The location associated with the expense.
+    DateListValue:
+      title: Date list value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: array
+          nullable: true
+          items:
+            type: string
+            description: The data of the custom field.
+            format: date
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - DATE
+      description: Date list value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.MultipleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    DateValue:
+      title: Date value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: string
+          description: The data of the custom field.
+          format: date
+          nullable: true
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - DATE
+      description: Date value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.SingleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    DecimalListValue:
+      title: Decimal list value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: array
+          nullable: true
+          items:
+            type: number
+            description: The data of the custom field.
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - DECIMAL
+      description: Decimal list value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.MultipleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    DecimalValue:
+      title: Decimal value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: number
+          description: The data of the custom field.
+          nullable: true
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - DECIMAL
+      description: Decimal value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.SingleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    Department:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the department.
+        name:
+          type: string
+          description: The name of the department.
+      description: The department associated with the expense.
+    EnumListValue:
+      title: Enum list value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: array
+          nullable: true
+          items:
+            type: string
+            description: The data of the custom field.
+            format: enum
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - ENUM
+      description: Enum list value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.MultipleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    EnumValue:
+      title: Enum value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: string
+          description: The data of the custom field.
+          format: enum
+          nullable: true
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - ENUM
+      description: Enum value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.SingleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    ExpandableExpense:
+      required:
+        - dashboard_url
+        - id
+        - updated_at
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID associated with the expense.
+        memo:
+          type: string
+          description: The memo of the expense.
+          nullable: true
+        location_id:
+          type: string
+          nullable: true
+        location:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/CustomerLocation'
+            - description: The location associated with the expense.
+        address:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Location'
+        department_id:
+          type: string
+          nullable: true
+        department:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Department'
+        updated_at:
+          type: string
+          description: The last time the expense was updated.
+          format: date-time
+        payment_posted_at:
+          type: string
+          format: date-time
+          nullable: true
+        category:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Category'
+        merchant_id:
+          type: string
+          nullable: true
+        merchant:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Merchant'
+        receipts:
+          type: array
+          description: A list of receipts associated with the expense.
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Receipt'
+        budget_id:
+          type: string
+          nullable: true
+        budget:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Budget'
+        expense_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/ExpenseType'
+        original_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >-
+                The original amount of the expense is the amount that the
+                employee submitted or incurred for reimbursements or card
+                spends.
+        billing_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >-
+                The billing amount of the expense is the amount that the entity
+                is charged, on the entity's currency, for reimbursements or card
+                spends.
+        budget_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >-
+                The budget amount of the expense is the amount that was incurred
+                in the budget's currency
+        purchased_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >-
+                The purchased amount of the expense is the amount that's on the
+                receipt.
+        usd_equivalent_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >-
+                The amount of the expense converted in USD (if not already in
+                USD).
+        purchased_at:
+          type: string
+          description: The time the purchase was made.
+          format: date-time
+          nullable: true
+        status:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/ExpenseStatus'
+        payment_status:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/ExpensePaymentStatus'
+        user_id:
+          type: string
+          nullable: true
+        user:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/User'
+        payment:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Payment'
+        custom_fields:
+          type: array
+          description: A list of custom field values associated with the expense.
+          nullable: true
+          items:
+            $ref: '#/components/schemas/CustomField'
+        trip_id:
+          type: string
+          description: The trip ID associated with the expense if it is a trip expense.
+          nullable: true
+        booking_id:
+          type: string
+          description: The booking ID associated with the expense if it is a trip expense.
+          nullable: true
+        spending_entity_id:
+          type: string
+          description: The spending entity ID associated with the expense.
+          nullable: true
+        spending_entity:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/LegalEntity'
+            - description: The spending entity associated with the expense.
+        billing_entity_id:
+          type: string
+          description: ID of the legal entity responsible for billing the expense.
+          nullable: true
+        exported_at:
+          type: string
+          description: Timestamp when the expense was exported to the accounting system.
+          format: date-time
+          nullable: true
+        integration_spending_entity_id:
+          type: string
+          description: ID of the spending entity in accounting.
+          nullable: true
+        integration_billing_entity_id:
+          type: string
+          description: ID of the billing entity in accounting.
+          nullable: true
+        review:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Review'
+            - description: >-
+                Review information for the expense, including compliance status
+                and reviewer details.
+        repayment:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Repayment'
+            - description: >-
+                The repayment information for the expense, include the time the
+                repayment is created and the user that created the repayment.
+        approved_at:
+          type: string
+          description: The time the expense is approved.
+          format: date-time
+          nullable: true
+        submitted_at:
+          type: string
+          description: The time the expense is submitted,
+          format: date-time
+          nullable: true
+        completion_date:
+          type: string
+          description: The time payment will be completed/is completed.
+          format: date-time
+          nullable: true
+        policy:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Policy'
+            - description: The policy associated with the expense.
+        expense_line_items:
+          type: array
+          description: The expense line items. Limited to 100 items.
+          nullable: true
+          items:
+            $ref: '#/components/schemas/ExpandableExpense'
+        dashboard_url:
+          type: string
+          description: URL to view the expense in the Brex dashboard.
+      description: >-
+        The expense object that has expandable fields, e.g., `location`,
+        `department`, `merchant`, `receipts.download_uris`, `user`, `budget`,
+        `payment`, `spending_entity`, and `policy`.
+    Expense:
+      required:
+        - id
+        - updated_at
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID associated with the expense.
+        memo:
+          type: string
+          description: The memo of the expense.
+          nullable: true
+        location_id:
+          type: string
+          nullable: true
+        department_id:
+          type: string
+          nullable: true
+        updated_at:
+          type: string
+          description: The last time the expense was updated.
+          format: date-time
+        category:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Category'
+        merchant_id:
+          type: string
+          nullable: true
+        budget_id:
+          type: string
+          nullable: true
+        original_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >-
+                The original amount of the expense is the amount that the
+                employee submitted or incurred for reimbursements or card
+                spends.
+        billing_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >-
+                The billing amount of the expense is the amount that the entity
+                is charged, on the entity's currency, for reimbursements or card
+                spends.
+        purchased_at:
+          type: string
+          description: The time the purchase was made.
+          format: date-time
+          nullable: true
+        status:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/ExpenseStatus'
+        payment_status:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/ExpensePaymentStatus'
+    ExpensePaymentStatus:
+      type: string
+      enum:
+        - NOT_STARTED
+        - PROCESSING
+        - CANCELED
+        - DECLINED
+        - CLEARED
+        - REFUNDING
+        - REFUNDED
+        - CASH_ADVANCE
+        - CREDITED
+        - AWAITING_PAYMENT
+        - SCHEDULED
+    ExpenseStatus:
+      type: string
+      enum:
+        - DRAFT
+        - SUBMITTED
+        - APPROVED
+        - OUT_OF_POLICY
+        - VOID
+        - CANCELED
+        - SPLIT
+        - SETTLED
+    ExpenseType:
+      type: string
+      enum:
+        - CARD
+        - BILLPAY
+        - REIMBURSEMENT
+        - CLAWBACK
+        - UNSET
+    LegalEntity:
+      title: Legal Entity
+      required:
+        - billing_address
+        - created_at
+        - display_name
+        - id
+        - status
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of this legal entity.
+        display_name:
+          type: string
+          description: The display name of this legal entity.
+        billing_address:
+          allOf:
+            - $ref: '#/components/schemas/Address'
+            - description: >-
+                The billing address of this legal entity. Also used as billing
+                address for cards issued to users who belong to this entity.
+        created_at:
+          type: string
+          description: Timestamp, in UTC, when this legal entity was created.
+          format: date-time
+        status:
+          allOf:
+            - $ref: '#/components/schemas/LegalEntityStatus'
+            - description: The current status of this legal entity.
+        is_default:
+          type: boolean
+          description: Whether this is the default entity of the account.
+      description: A Brex legal entity.
+    LegalEntityStatus:
+      type: string
+      description: The possible statuses for an entity's verification in Brex.
+      enum:
+        - UNSUBMITTED
+        - UNVERIFIED
+        - IN_PROGRESS
+        - VERIFIED
+        - REJECTED
+    Location:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Two-letter country code (ISO 3166-1 alpha-2).
+          nullable: true
+        state:
+          type: string
+          description: >-
+            For US-addressed the 2-letter State abbreviation. For
+            international-addresses the county, providence, or region.
+          nullable: true
+        city:
+          type: string
+          description: City, district, suburb, town, or village.
+          nullable: true
+        postal_code:
+          type: string
+          description: ZIP or postal code.
+          nullable: true
+        timezone:
+          type: string
+          description: Timezone.
+          nullable: true
+        coordinates:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Location.LatLong'
+        line1:
+          type: string
+          description: Address line 1, no PO Box.
+          nullable: true
+        line2:
+          type: string
+          description: Address line 2 (e.g., apartment, suite, unit, or building).
+          nullable: true
+      description: Location
+    Location.LatLong:
+      required:
+        - latitude
+        - longitude
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+      description: Latitude and longitude
+    Merchant:
+      required:
+        - country
+        - mcc
+        - raw_descriptor
+      type: object
+      properties:
+        raw_descriptor:
+          type: string
+          description: Merchant descriptor, it can be the merchant name.
+        mcc:
+          type: string
+          description: >-
+            A four-digit number listed in ISO 18245 for retail financial
+            services, e.g. 4121 for Taxicabs and Rideshares. Please refer to
+            https://en.wikipedia.org/wiki/Merchant_category_code for more
+            details.
+        country:
+          type: string
+          description: Merchant's country, in ISO 3166-1 alpha-3 format.
+    Money:
+      required:
+        - amount
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: >-
+            The amount of money, in the smallest denomination of the currency
+            indicated by currency. For example, when currency is USD, amount is
+            in cents.
+          format: int64
+          example: 700
+        currency:
+          type: string
+          description: The type of currency, in ISO 4217 format.
+          nullable: true
+          example: USD
+          default: USD
+      description: >
+
+        Money fields can be signed or unsigned. Fields are signed (an unsigned
+        value will be interpreted as positive). The amount of money will be
+        represented in the smallest denomination
+
+        of the currency indicated. For example, USD 7.00 will be represented in
+        cents with an amount of 700.
+    MoneyListValue:
+      title: Money list value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Money'
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - MONEY
+      description: Money list value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.MultipleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    MoneyValue:
+      title: Money value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: The data of the custom field.
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - MONEY
+      description: Money value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.SingleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    OptionString:
+      type: object
+      properties:
+        option_id:
+          type: string
+          description: The identifier when custom field data is of type option string.
+          nullable: true
+        option_label:
+          type: string
+          description: The label when custom field data is of type option string.
+          nullable: true
+      description: Option string fields have a label and a identifier.
+    OptionStringListValue:
+      title: Option string list value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/OptionString'
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - OPTION_STRING
+      description: Option string list value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.MultipleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    OptionStringValue:
+      title: Option string value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/OptionString'
+            - description: The data of the custom field.
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - OPTION_STRING
+      description: Option string value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.SingleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    Page_ExpandableExpense_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandableExpense'
+    Payment:
+      required:
+        - id
+        - paymentInstrument
+        - statusReason
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID for the payment.
+        paymentInstrument:
+          allOf:
+            - $ref: '#/components/schemas/PaymentInstrument'
+            - description: The type of instrument by which the payment was made.
+        statusReason:
+          $ref: '#/components/schemas/PaymentStatusReason'
+      description: The payment associated with the expense.
+    PaymentInstrument:
+      required:
+        - type
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/PaymentInstrumentType'
+      discriminator:
+        propertyName: type
+        mapping:
+          CARD: '#/components/schemas/CardPaymentInstrument'
+      oneOf:
+        - $ref: '#/components/schemas/CardPaymentInstrument'
+    PaymentInstrumentType:
+      type: string
+      enum:
+        - CARD
+    PaymentStatusReason:
+      type: string
+      description: The reason for the payment's status.
+      enum:
+        - OTHER
+        - APPROVED
+        - EXCEEDED_BUDGET_LIMIT
+        - BUDGET_EXPIRED
+        - NO_BUDGET
+        - BUDGET_NOT_YET_STARTED
+        - BUDGET_CATEGORY_RESTRICTION
+        - BUDGET_MERCHANT_RESTRICTION
+        - SUSPECTED_FRAUD
+        - EXCEEDED_GLOBAL_LIMIT
+        - EXCEEDED_USER_LIMIT
+        - EXCEEDED_CARD_LIMIT
+        - INVALID_EXPIRATION_DATE
+        - CARD_NOT_ACTIVE
+        - INVALID_CARD_CREDENTIALS
+        - INVALID_BILLING_ADDRESS
+        - CARD_SUSPENDED
+        - CARD_TERMINATED
+        - CARD_EXPIRED
+        - MCC_BLOCKED
+        - USER_SUSPENDED
+        - INVALID_PIN
+        - INVALID_CVV
+        - EXCEEDED_PIN_ATTEMPTS
+        - INSIDE_SANCTIONED_COUNTRY
+        - SOFT_EXPIRATION
+        - TRANSFERRED_CARD_NEW_MERCHANT
+        - EXCEEDED_ANCESTOR_BUDGET_LIMIT
+        - EXCEEDED_BUDGET_TRANSACTION_LIMIT
+        - TOS_BLOCKED
+        - COMPLIANCE_BLOCKED
+    Policy:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the policy.
+        name:
+          type: string
+          description: The display name of the policy.
+      description: The policy associated with the expense.
+    Receipt:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the receipt.
+        download_uris:
+          type: array
+          description: >-
+            [Presigned S3
+            link](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html)(s)
+            to download file(s) of the receipt. Link(s) expire in 15 minutes.
+          nullable: true
+          items:
+            type: string
+      description: The receipt associated with the expense.
+    ReceiptMatchRequest:
+      required:
+        - receipt_name
+      type: object
+      properties:
+        receipt_name:
+          type: string
+          description: >-
+            The name of the receipt (with the file extension). It will be used
+            in the matching result email.
+      description: The parameter for creating a receipt match.
+    ReceiptUploadRequest:
+      required:
+        - receipt_name
+      type: object
+      properties:
+        receipt_name:
+          type: string
+          description: The name of the receipt (with the file extension).
+      description: The parameter for creating a receipt upload.
+    Repayment:
+      type: object
+      properties:
+        repayment_initiated_by:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/User'
+        repayment_initiation_date:
+          type: string
+          format: date-time
+          nullable: true
+    Review:
+      required:
+        - approval_steps
+        - compliance_status
+      type: object
+      properties:
+        compliance_status:
+          type: string
+          description: Compliance status of the expense
+          nullable: true
+        approval_steps:
+          type: array
+          description: Information for each approval step of the expense
+          nullable: true
+          items:
+            $ref: '#/components/schemas/ApprovalStepDetails'
+    StringListValue:
+      title: String list value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: array
+          nullable: true
+          items:
+            type: string
+            description: The data of the custom field.
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - STRING
+      description: String list value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.MultipleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    StringValue:
+      title: String value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: string
+          description: The data of the custom field.
+          nullable: true
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - STRING
+      description: String value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.SingleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    TimestampListValue:
+      title: Timestamp list value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: array
+          nullable: true
+          items:
+            type: string
+            description: The data of the custom field.
+            format: date-time
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - TIMESTAMP
+      description: Timestamp list value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.MultipleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    TimestampValue:
+      title: Timestamp value
+      required:
+        - data_type
+      type: object
+      properties:
+        data:
+          type: string
+          description: The data of the custom field.
+          format: date-time
+          nullable: true
+        data_type:
+          type: string
+          description: The type of the custom field data.
+          enum:
+            - TIMESTAMP
+      description: Timestamp value for a custom field
+      allOf:
+        - $ref: '#/components/schemas/CustomField.ValueWrapper.SingleValueWrapper'
+        - $ref: '#/components/schemas/CustomField.ValueWrapper'
+    UpdateExpenseRequest:
+      type: object
+      properties:
+        memo:
+          type: string
+          description: Expense memo.
+          nullable: true
+      description: The parameter for updating an expense.
+    User:
+      required:
+        - first_name
+        - id
+        - last_name
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID for the User.
+        first_name:
+          type: string
+          description: First name of the User.
+        last_name:
+          type: string
+          description: Last name of the User.
+        department_id:
+          type: string
+          nullable: true
+        location_id:
+          type: string
+          nullable: true
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: OAuth2 security scheme
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts-api.brex.com/oauth2/default/v1/authorize
+          tokenUrl: https://accounts-api.brex.com/oauth2/default/v1/token
+          scopes:
+            openid: openid
+            offline_access: offline access
+            expenses.card: View and manage card expenses data
+            expenses.card.readonly: View card expenses data
+x-explorer-enabled: false

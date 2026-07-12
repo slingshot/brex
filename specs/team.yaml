@@ -1,0 +1,1965 @@
+openapi: 3.0.1
+info:
+  title: Team API
+  description: |
+
+    The team API lets you manage users, departments, locations, and cards.
+  contact:
+    name: Admin
+    url: https://brex.com
+    email: developer-support@brex.com
+  version: '1.0'
+  x-logo:
+    altText: Brex Logo
+    url: https://www.brex.com/logo.png
+servers:
+  - url: https://api.brex.com
+    description: Production
+  - url: https://api-staging.brex.com
+    description: >-
+      Staging (Note: This is not a sandbox. It will not work with customer
+      tokens.)
+security:
+  - OAuth2: []
+tags:
+  - name: Users
+    description: Endpoints for user management.
+  - name: Locations
+    description: Endpoints for location management.
+  - name: Departments
+    description: Endpoints for department management.
+  - name: Titles
+    description: Endpoints for title management.
+  - name: Cards
+    description: Endpoints for card management.
+  - name: Legal Entities
+    description: Endpoints for legal entities.
+paths:
+  /v2/cards:
+    get:
+      tags:
+        - Cards
+      summary: |
+
+        List cards
+      description: |
+
+        Lists all cards by a `user_id`.
+        Only cards with `limit_type = CARD` have `spend_controls`
+      operationId: listCardsByUserId
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+      responses:
+        '200':
+          description: listCardsByUserId 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_Card_'
+      security:
+        - OAuth2:
+            - cards.readonly
+            - cards
+    post:
+      tags:
+        - Cards
+      summary: |
+
+        Create card
+      description: >
+
+        Creates a new card.
+
+        The `spend_controls` field is required when `limit_type` = `CARD`.
+
+        The `mailing_address` field is required for physical cards and is the
+        shipping address used to send the card; it is not the same as the
+        billing and mailing address used for online purchases.
+
+        The first 2 lines of this address must be under 60 characters long. Each
+        user can only have up to 10 active physical cards.
+
+        For Empower accounts, this endpoint requires budget management. If your
+        account does not have access to budget management features, a 403
+        response status will be returned. 
+
+        If this is the case and you want to gain access to this endpoint, please
+        contact Brex support.
+      operationId: createCard
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCardRequest'
+        required: true
+      responses:
+        '200':
+          description: createCard 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+      security:
+        - OAuth2:
+            - cards
+  /v2/cards/{id}:
+    get:
+      tags:
+        - Cards
+      summary: |
+
+        Get card
+      description: >
+
+        Retrieves a card by ID. Only cards with `limit_type = CARD` have
+        `spend_controls`
+      operationId: getCardById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: getCardById 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+      security:
+        - OAuth2:
+            - cards
+            - cards.readonly
+    put:
+      tags:
+        - Cards
+      summary: |
+
+        Update card
+      description: |
+
+        Update an existing vendor card
+      operationId: updateCard
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCardRequest'
+        required: true
+      responses:
+        '200':
+          description: updateCard 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+      security:
+        - OAuth2:
+            - cards
+  /v2/cards/{id}/lock:
+    post:
+      tags:
+        - Cards
+      summary: |
+
+        Lock card
+      description: >
+
+        Locks an existing, unlocked card. And the card owner will receive a
+        notification about it.
+      operationId: lockCard
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LockCardRequest'
+        required: true
+      responses:
+        '200':
+          description: lockCard 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+      security:
+        - OAuth2:
+            - cards
+  /v2/cards/{id}/pan:
+    get:
+      tags:
+        - Cards
+      summary: |
+
+        Get card number
+      description: |
+
+        Retrieves card number, CVV, and expiration date of a card by ID.
+      operationId: getCardNumber
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: getCardNumber 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardNumberResponse'
+      security:
+        - OAuth2:
+            - cards.pan
+      servers:
+        - url: https://api.brex.com
+          description: Production
+        - url: https://api-staging.brex.com
+          description: >-
+            Staging (Note: This is not a sandbox. It will not work with customer
+            tokens.)
+  /v2/cards/{id}/secure_email:
+    post:
+      tags:
+        - Cards
+      summary: |
+
+        Create secure email to send card number 
+      description: >
+
+        Creates a secure email to send card number, CVV, and expiration date of
+        a card by ID to the specified email.
+
+
+        This endpoint is currently gated. If you would like to request access,
+        please reach out to
+
+        developer-support@brex.com
+      operationId: emailCardNumber
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureEmailForCardDetailsRequest'
+        required: true
+      responses:
+        '200':
+          description: emailCardNumber 200 response
+      security:
+        - OAuth2:
+            - cards.pan
+  /v2/cards/{id}/terminate:
+    post:
+      tags:
+        - Cards
+      summary: |
+
+        Terminate card
+      description: >
+
+        Terminates an existing card. The card owner will receive a notification
+        about it.
+      operationId: terminateCard
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TerminateCardRequest'
+        required: true
+      responses:
+        '200':
+          description: terminateCard 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+      security:
+        - OAuth2:
+            - cards
+  /v2/cards/{id}/unlock:
+    post:
+      tags:
+        - Cards
+      summary: |
+
+        Unlock card
+      description: |
+
+        Unlocks an existing card.
+      operationId: unlockCard
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            nullable: true
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: unlockCard 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+      security:
+        - OAuth2:
+            - cards
+  /v2/company:
+    get:
+      tags:
+        - Companies
+      summary: |
+
+        Get company
+      description: >
+
+        This endpoint returns the company associated with the OAuth2 access
+        token.
+      operationId: getCompany
+      responses:
+        '200':
+          description: getCompany 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyResponse'
+      security:
+        - OAuth2:
+            - companies.readonly
+  /v2/departments:
+    get:
+      tags:
+        - Departments
+      summary: |
+
+        List departments
+      description: |
+
+        This endpoint lists all departments.
+      operationId: listDepartments
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+        - name: name
+          in: query
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: listDepartments 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_DepartmentResponse_'
+      security:
+        - OAuth2:
+            - departments
+            - departments.readonly
+    post:
+      tags:
+        - Departments
+      summary: |
+
+        Create department
+      description: |
+
+        This endpoint creates a new department
+      operationId: createDepartment
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDepartmentRequest'
+        required: true
+      responses:
+        '200':
+          description: createDepartment 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+      security:
+        - OAuth2:
+            - departments
+  /v2/departments/{id}:
+    get:
+      tags:
+        - Departments
+      summary: |
+
+        Get department
+      description: |
+
+        This endpoint gets a department by ID.
+      operationId: getDepartmentById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: getDepartmentById 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+      security:
+        - OAuth2:
+            - departments
+            - departments.readonly
+  /v2/legal_entities:
+    get:
+      tags:
+        - Legal Entities
+      summary: |
+
+        List legal entities
+      description: |
+
+        List legal entities for the account.
+      operationId: listLegalEntities
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+      responses:
+        '200':
+          description: listLegalEntities 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_LegalEntity_'
+      security:
+        - OAuth2:
+            - legal_entities
+            - legal_entities.readonly
+  /v2/legal_entities/{id}:
+    get:
+      tags:
+        - Legal Entities
+      summary: |
+
+        Get legal entity
+      description: |
+
+        Get a legal entity by its ID.
+      operationId: getLegalEntity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: getLegalEntity 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalEntity'
+      security:
+        - OAuth2:
+            - legal_entities
+            - legal_entities.readonly
+  /v2/locations:
+    get:
+      tags:
+        - Locations
+      summary: |
+
+        List locations
+      description: |
+
+        This endpoint lists all locations.
+      operationId: listLocations
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+        - name: name
+          in: query
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: listLocations 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_LocationResponse_'
+      security:
+        - OAuth2:
+            - locations
+            - locations.readonly
+    post:
+      tags:
+        - Locations
+      summary: |
+
+        Create location
+      description: |
+
+        This endpoint creates a new location.
+      operationId: createLocation
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLocationRequest'
+        required: true
+      responses:
+        '200':
+          description: createLocation 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+      security:
+        - OAuth2:
+            - locations
+  /v2/locations/{id}:
+    get:
+      tags:
+        - Locations
+      summary: |
+
+        Get location
+      description: |
+
+        This endpoint gets a location by ID.
+      operationId: getLocationById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: getLocationById 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+      security:
+        - OAuth2:
+            - locations
+            - locations.readonly
+  /v2/titles:
+    get:
+      tags:
+        - Titles
+      summary: |
+
+        List titles
+      description: |
+
+        This endpoint lists all titles.
+      operationId: listTitles
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+        - name: name
+          in: query
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: listTitles 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_TitleResponse_'
+      security:
+        - OAuth2:
+            - titles
+            - titles.readonly
+    post:
+      tags:
+        - Titles
+      summary: |
+
+        Create title
+      description: |
+
+        This endpoint creates a new title
+      operationId: createTitle
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTitleRequest'
+        required: true
+      responses:
+        '200':
+          description: createTitle 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TitleResponse'
+      security:
+        - OAuth2:
+            - titles
+  /v2/titles/{id}:
+    get:
+      tags:
+        - Titles
+      summary: |
+
+        Get title
+      description: |
+
+        This endpoint gets a title by ID.
+      operationId: getTitleById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: getTitleById 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TitleResponse'
+      security:
+        - OAuth2:
+            - titles
+            - titles.readonly
+  /v2/users:
+    get:
+      tags:
+        - Users
+      summary: |
+
+        List users
+      description: >
+
+        This endpoint lists all users. To find a user id by email, you can
+        filter using the `email` query parameter.
+      operationId: listUsers
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+        - name: email
+          in: query
+          schema:
+            type: string
+            description: >-
+              Currently only support filtering by a single email or a single
+              remote_display_id.
+            nullable: true
+        - name: remote_display_id
+          in: query
+          schema:
+            type: string
+            description: >-
+              Currently only support filtering by a single email or a single
+              remote_display_id.
+            nullable: true
+        - name: expand[]
+          in: query
+          schema:
+            type: array
+            description: >
+
+              Expandable fields that can be included in the response by passing
+              in a query parameter e.g. ?expand[]=limit
+            nullable: true
+            items:
+              type: string
+      responses:
+        '200':
+          description: listUsers 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_UserResponse_'
+      security:
+        - OAuth2:
+            - users
+            - users.readonly
+    post:
+      tags:
+        - Users
+      summary: |
+
+        Invite user
+      description: >
+
+        This endpoint invites a new user as an employee.
+
+        To update user's role, check out [this
+        article](https://support.brex.com/how-do-i-change-another-user-s-role/).
+      operationId: createUser
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+        required: true
+      responses:
+        '200':
+          description: createUser 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+      security:
+        - OAuth2:
+            - users
+  /v2/users/me:
+    get:
+      tags:
+        - Users
+      summary: |
+
+        Get current user
+      description: |
+
+        This endpoint returns the user associated with the OAuth2 access token.
+      operationId: getMe
+      responses:
+        '200':
+          description: getMe 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+      security:
+        - OAuth2:
+            - users
+            - users.readonly
+  /v2/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: |
+
+        Get user
+      description: |
+
+        This endpoint gets a user by ID.
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: getUserById 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+      security:
+        - OAuth2:
+            - users
+            - users.readonly
+    put:
+      tags:
+        - Users
+      summary: |
+
+        Update user
+      description: >
+
+        This endpoint updates a user. Any parameters not provided will be left
+        unchanged.
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+        required: true
+      responses:
+        '200':
+          description: updateUser 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+      security:
+        - OAuth2:
+            - users
+  /v2/users/{id}/limit:
+    get:
+      tags:
+        - Users
+      summary: |
+
+        Get limit for the user
+      description: >
+
+        This endpoint gets the monthly limit for the user including the monthly
+        available limit.
+      operationId: getUserLimit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: getUserLimit 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLimitResponse'
+      security:
+        - OAuth2:
+            - users
+            - users.readonly
+    post:
+      tags:
+        - Users
+      summary: |
+
+        Set limit for the user
+      description: >
+
+        This endpoint sets the monthly limit for a user. 
+
+        The limit amount must be non-negative. 
+
+        To unset the monthly limit of the user, just set `monthly_limit` to
+        null.
+      operationId: setUserLimit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetUserLimitRequest'
+        required: true
+      responses:
+        '200':
+          description: setUserLimit 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLimitResponse'
+      security:
+        - OAuth2:
+            - users
+components:
+  schemas:
+    AccountType:
+      type: string
+      enum:
+        - BREX_CLASSIC
+        - BREX_EMPOWER
+    Address:
+      type: object
+      properties:
+        line1:
+          type: string
+          description: Address line 1, no PO Box.
+          nullable: true
+        line2:
+          type: string
+          description: Address line 2 (e.g., apartment, suite, unit, or building).
+          nullable: true
+        city:
+          type: string
+          description: City, district, suburb, town, or village.
+          nullable: true
+        state:
+          type: string
+          description: >-
+            For US-addressed the 2-letter State abbreviation. For
+            international-addresses the county, providence, or region.
+          nullable: true
+        country:
+          type: string
+          description: Two-letter country code (ISO 3166-1 alpha-2).
+          nullable: true
+        postal_code:
+          type: string
+          description: ZIP or postal code.
+          nullable: true
+        phone_number:
+          type: string
+          description: Phone number.
+          nullable: true
+      description: >-
+        Company business address (must be in the US; no PO box or
+        virtual/forwarding addresses allowed).
+    Card:
+      required:
+        - billing_address
+        - card_name
+        - expiration_date
+        - id
+        - last_four
+        - limit_type
+        - owner
+      type: object
+      properties:
+        id:
+          type: string
+        owner:
+          $ref: '#/components/schemas/CardOwner'
+        status:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/CardStatus'
+        last_four:
+          type: string
+        card_name:
+          type: string
+        card_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/CardType'
+        limit_type:
+          $ref: '#/components/schemas/LimitType'
+        spend_controls:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendControl'
+        billing_address:
+          $ref: '#/components/schemas/Address'
+        mailing_address:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Address'
+        expiration_date:
+          $ref: '#/components/schemas/CardExpiration'
+        has_been_transferred:
+          type: boolean
+          description: >
+
+            Indicates whether a card has been transferred. Transferred cards
+            have a spending restriction: we only allow transactions \
+
+            at online vendors where this card was previously used before the
+            transfer.
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: >
+
+            Set of key value pairs associated with this object. Please do not
+            store any personally identifiable or sensitive information here.
+
+            Limitations: maximum of 50 keys, keys cannot exceed 40 characters,
+            values cannot exceed 500 characters. 
+          nullable: true
+        budget_id:
+          type: string
+          nullable: true
+      description: |
+
+        Only cards with limit_type = CARD have spend_controls
+    CardAttributePreferences:
+      type: object
+      properties:
+        three_domain_secure_enabled_preference:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/ThreeDomainSecureEnabledPreference'
+    CardExpiration:
+      required:
+        - month
+        - year
+      type: object
+      properties:
+        month:
+          type: integer
+          format: int32
+        year:
+          type: integer
+          format: int32
+      description: >
+
+        Card expiration year and month. Cards expire on the last day of the
+        expiration month.
+
+
+        The expiration date is in UTC for cards starting with 555671, 428803 and
+        485932.
+
+        And the expiration date is in PST for cards starting with 511572.
+    CardNumberResponse:
+      required:
+        - cvv
+        - expiration_date
+        - holder_name
+        - id
+        - number
+      type: object
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+        cvv:
+          type: string
+        expiration_date:
+          $ref: '#/components/schemas/CardExpiration'
+        holder_name:
+          type: string
+      description: |
+
+        Card number, CVV, and expiration date of a card.
+    CardOwner:
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          USER: '#/components/schemas/UserOwner'
+      oneOf:
+        - $ref: '#/components/schemas/UserOwner'
+    CardStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - SHIPPED
+        - LOCKED
+        - TERMINATED
+    CardType:
+      type: string
+      enum:
+        - VIRTUAL
+        - PHYSICAL
+    ChangeCardReason:
+      type: string
+      description: |
+
+        Reason for card termination.
+      enum:
+        - CARD_DAMAGED
+        - CARD_LOST
+        - CARD_NOT_RECEIVED
+        - DO_NOT_NEED_PHYSICAL_CARD
+        - DO_NOT_NEED_VIRTUAL_CARD
+        - FRAUD
+        - OTHER
+    CompanyResponse:
+      required:
+        - accountType
+        - id
+        - legal_name
+        - mailing_address
+      type: object
+      properties:
+        id:
+          type: string
+        legal_name:
+          type: string
+        mailing_address:
+          $ref: '#/components/schemas/Address'
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+    CreateCardRequest:
+      required:
+        - card_name
+        - card_type
+        - limit_type
+        - owner
+      type: object
+      properties:
+        owner:
+          $ref: '#/components/schemas/CardOwner'
+        card_name:
+          minLength: 1
+          type: string
+        card_type:
+          $ref: '#/components/schemas/CardType'
+        limit_type:
+          $ref: '#/components/schemas/LimitType'
+        spend_controls:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendControlRequest'
+        mailing_address:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Address'
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: >
+
+            Set of key value pairs associated with this object. Please do not
+            store any personally identifiable or sensitive information here.
+
+            Limitations: maximum of 50 keys, keys cannot exceed 40 characters,
+            values cannot exceed 500 characters. 
+          nullable: true
+        card_attribute_preferences:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/CardAttributePreferences'
+      description: >
+
+        The `spend_controls` field is required when `limit_type` = `CARD`.
+
+        The `shipping_address` field is required for physical cards, and the
+        first 2 lines of the address must be under 60 characters long.
+    CreateDepartmentRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          minLength: 1
+          type: string
+          description: Name of the department
+        description:
+          type: string
+          description: Description of the department
+          nullable: true
+    CreateLocationRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          minLength: 1
+          type: string
+          description: Name of the location
+        description:
+          type: string
+          description: Description of the location
+          nullable: true
+    CreateTitleRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          minLength: 1
+          type: string
+          description: Name of the title
+    CreateUserRequest:
+      required:
+        - email
+        - first_name
+        - last_name
+      type: object
+      properties:
+        first_name:
+          minLength: 1
+          type: string
+        last_name:
+          minLength: 1
+          type: string
+        email:
+          type: string
+          format: email
+        manager_id:
+          type: string
+          nullable: true
+        department_id:
+          type: string
+          nullable: true
+        location_id:
+          type: string
+          nullable: true
+        title_id:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: >-
+            The metadata or customized attributes of the user. Maximum number of
+            entries: 100
+          nullable: true
+    DepartmentResponse:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: Name of the department
+        description:
+          type: string
+          description: Description of the department
+          nullable: true
+    LegalEntity:
+      title: |
+
+        Legal Entity
+      required:
+        - billingAddress
+        - createdAt
+        - displayName
+        - id
+        - status
+      type: object
+      properties:
+        id:
+          type: string
+          description: |
+
+            The ID of this legal entity.
+        displayName:
+          type: string
+          description: |
+
+            The display name of this legal entity.
+        billingAddress:
+          allOf:
+            - $ref: '#/components/schemas/Address'
+            - description: >
+
+                The billing address of this legal entity. Also used as billing
+                address for cards issued to users who belong to this entity.
+        createdAt:
+          type: string
+          description: |
+
+            Timestamp, in UTC, when this legal entity was created.
+          format: date-time
+        status:
+          allOf:
+            - $ref: '#/components/schemas/LegalEntityStatus'
+            - description: |
+
+                The current status of this legal entity.
+        isDefault:
+          type: boolean
+          description: |
+
+            Whether this is the default entity of the account.
+      description: |
+
+        A Brex legal entity.
+    LegalEntityStatus:
+      type: string
+      description: |
+
+        The possible statuses for an entity's verification in Brex.
+      enum:
+        - UNSUBMITTED
+        - UNVERIFIED
+        - IN_PROGRESS
+        - VERIFIED
+        - REJECTED
+    LimitType:
+      type: string
+      description: >
+
+        `limit_type = CARD` for vendor cards. Vendor cards must have a
+        `card_type` of `VIRTUAL` 
+
+        and do not rely on the user specific limit. 
+
+
+        For corporate cards, `limit_type = USER`.
+
+
+        Learn more about different card types
+        [here](https://support.brex.com/what-are-the-different-types-of-cards-i-can-get/).
+      enum:
+        - CARD
+        - USER
+    LocationResponse:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: Name of the location
+        description:
+          type: string
+          description: Description of the location
+          nullable: true
+    LockCardRequest:
+      required:
+        - reason
+      type: object
+      properties:
+        description:
+          type: string
+          description: Description for locking a card
+          nullable: true
+        reason:
+          $ref: '#/components/schemas/ChangeCardReason'
+      description: Parameters for locking a card.
+    LockedMerchantDetails:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the merchant.
+          example: Github
+      description: |
+
+        Merchant details used for restricting or blocking transactions.
+    Money:
+      required:
+        - amount
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: >-
+            The amount of money, in the smallest denomination of the currency
+            indicated by currency. For example, when currency is USD, amount is
+            in cents.
+          format: int64
+          example: 700
+        currency:
+          type: string
+          description: The type of currency, in ISO 4217 format.
+          nullable: true
+          example: USD
+          default: USD
+      description: >
+
+        Money fields can be signed or unsigned. Fields are signed (an unsigned
+        value will be interpreted as positive). The amount of money will be
+        represented in the smallest denomination
+
+        of the currency indicated. For example, USD 7.00 will be represented in
+        cents with an amount of 700.
+    OwnerType:
+      type: string
+      enum:
+        - USER
+    Page_Card_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+    Page_DepartmentResponse_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentResponse'
+    Page_LegalEntity_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalEntity'
+    Page_LocationResponse_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationResponse'
+    Page_TitleResponse_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TitleResponse'
+    Page_UserResponse_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+    SecureEmailForCardDetailsRequest:
+      required:
+        - recipient_email
+        - sender_name
+      type: object
+      properties:
+        recipient_email:
+          type: string
+          description: Email address to send card details to
+        sender_name:
+          type: string
+          description: Sender name. Shows up in the subject of the email
+        message:
+          type: string
+          description: Message to send with the card details
+          nullable: true
+        expiry_days:
+          maximum: 30
+          type: integer
+          description: Link expiry in number of days. Defaults to 30
+          format: int32
+          nullable: true
+    SetUserLimitRequest:
+      type: object
+      properties:
+        monthly_limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+      description: Request that sets the monthly user limit.
+    SpendControl:
+      type: object
+      properties:
+        spend_limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        spend_available:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        spend_duration:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendDuration'
+        reason:
+          type: string
+          nullable: true
+        lock_after_date:
+          type: string
+          description: The `lock_after_date` is in UTC.
+          format: date
+          nullable: true
+        allowed_merchant_details:
+          type: array
+          description: >
+
+            List of merchant details where card transactions are allowed. Empty
+            if no allowed merchant details are configured.
+          nullable: true
+          example: '[{"name": "Github"}, {"name": "AWS"}]'
+          items:
+            $ref: '#/components/schemas/LockedMerchantDetails'
+        blocked_merchant_details:
+          type: array
+          description: >
+
+            List of merchant details where card transactions are blocked. Empty
+            if no blocked merchant details are configured.
+          nullable: true
+          example: '[{"name": "Apple"}, {"name": "Amazon"}]'
+          items:
+            $ref: '#/components/schemas/LockedMerchantDetails'
+    SpendControlRequest:
+      required:
+        - spend_duration
+        - spend_limit
+      type: object
+      properties:
+        spend_limit:
+          $ref: '#/components/schemas/Money'
+        spend_duration:
+          $ref: '#/components/schemas/SpendDuration'
+        reason:
+          type: string
+          nullable: true
+        lock_after_date:
+          type: string
+          format: date
+          nullable: true
+        parent_budget_id:
+          type: string
+          description: >
+
+            If using the Empower platform, a new `budget` will be created for
+            this card. You can specify a `parent_budget` that your new
+
+            `budget` will be nested under. If `parent_budget_id` is null, we
+            will nest the new budget under the top-level account `budget`.
+          nullable: true
+        policy_id:
+          type: string
+          nullable: true
+        allowed_merchant_details:
+          maxItems: 50
+          type: array
+          description: >
+
+            List of merchants where card transactions are allowed. Cannot be
+            used together with blocked_merchant_details. Maximum 50 
+
+            merchant details.
+          nullable: true
+          example: '[{"name": "Github"}, {"name": "AWS"}]'
+          items:
+            $ref: '#/components/schemas/LockedMerchantDetails'
+        blocked_merchant_details:
+          maxItems: 50
+          type: array
+          description: >
+
+            List of merchants where card transactions are blocked. Cannot be
+            used together with allowed_merchant_details. Maximum 50 
+
+            merchant details.
+          nullable: true
+          example: '[{"name": "Apple"}, {"name": "Amazon"}]'
+          items:
+            $ref: '#/components/schemas/LockedMerchantDetails'
+      description: >
+
+        When `limit_type = CARD`, `spend_controls` must be set. When `limit type
+        = USER`, `spend_controls` must be `null`.
+    SpendControlUpdateRequest:
+      type: object
+      properties:
+        spend_limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        spend_duration:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendDuration'
+        reason:
+          type: string
+          nullable: true
+        lock_after_date:
+          type: string
+          format: date
+          nullable: true
+        allowed_merchant_details:
+          maxItems: 50
+          type: array
+          description: >
+
+            List of merchants where card transactions are allowed. Cannot be
+            used together with blocked_merchant_details. Maximum 50 
+
+            merchant details.
+          nullable: true
+          example: '[{"name": "Github"}, {"name": "AWS"}]'
+          items:
+            $ref: '#/components/schemas/LockedMerchantDetails'
+        blocked_merchant_details:
+          maxItems: 50
+          type: array
+          description: >
+
+            List of merchants where card transactions are blocked. Cannot be
+            used together with allowed_merchant_details. Maximum 50 
+
+            merchant details.
+          nullable: true
+          example: '[{"name": "Apple"}, {"name": "Amazon"}]'
+          items:
+            $ref: '#/components/schemas/LockedMerchantDetails'
+    SpendDuration:
+      type: string
+      description: |2
+
+            Spend limit refresh frequency
+            - MONTHLY: The spend limit refreshes every month
+            - QUARTERLY: The spend limit refreshes every quarter
+            - YEARLY: The spend limit refreshes every year
+            - ONE_TIME: The limit does not refresh
+      enum:
+        - MONTHLY
+        - QUARTERLY
+        - YEARLY
+        - ONE_TIME
+    TerminateCardRequest:
+      required:
+        - reason
+      type: object
+      properties:
+        description:
+          type: string
+          description: Description for terminating a card
+          nullable: true
+        reason:
+          $ref: '#/components/schemas/ChangeCardReason'
+      description: Parameters for terminating a card.
+    ThreeDomainSecureEnabledPreference:
+      type: string
+      description: |
+
+        Whether to enable 3-D secure protocol on this card. 
+      enum:
+        - THREE_DOMAIN_SECURE_ENABLED
+        - THREE_DOMAIN_SECURE_DISABLED
+    TitleResponse:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: Name of the title
+    UpdateCardRequest:
+      type: object
+      properties:
+        spend_controls:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendControlUpdateRequest'
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: >
+
+            Set of key value pairs associated with this object. Please do not
+            store any personally identifiable or sensitive information here.
+
+            Limitations: maximum of 50 keys, keys cannot exceed 40 characters,
+            values cannot exceed 500 characters. 
+          nullable: true
+    UpdateUserRequest:
+      type: object
+      properties:
+        status:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/UpdateUserStatus'
+        manager_id:
+          type: string
+          description: The user id of the manager of this user
+          nullable: true
+        department_id:
+          type: string
+          nullable: true
+        location_id:
+          type: string
+          nullable: true
+        title_id:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: >-
+            The metadata or customized attributes of the user. Maximum number of
+            entries: 100
+          nullable: true
+    UpdateUserStatus:
+      type: string
+      description: >
+
+        Acceptable user status for update. To suspend a user, set status to
+        'disabled'. To unsuspend a user, set status to 'active'.
+      enum:
+        - ACTIVE
+        - DISABLED
+    UserLimitResponse:
+      type: object
+      properties:
+        monthly_limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        monthly_available:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+    UserOwner:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CardOwner'
+        - required:
+            - type
+            - user_id
+          properties:
+            type:
+              $ref: '#/components/schemas/OwnerType'
+            user_id:
+              type: string
+    UserResponse:
+      required:
+        - email
+        - first_name
+        - id
+        - last_name
+      type: object
+      properties:
+        id:
+          type: string
+        first_name:
+          type: string
+          description: First name of the user
+        last_name:
+          type: string
+          description: Last name of the user
+        email:
+          type: string
+          description: Email address of the user
+        status:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/UserStatus'
+        manager_id:
+          type: string
+          description: The user id of the manager of this user
+          nullable: true
+        department_id:
+          type: string
+          nullable: true
+        location_id:
+          type: string
+          nullable: true
+        title_id:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: >-
+            The metadata or customized attributes of the user. Maximum number of
+            entries: 100
+          nullable: true
+        remote_display_id:
+          type: string
+          description: >-
+            Identifier that is displayed on the IDP or HR system, eg, if OKTA
+            identifies you as user xyz
+          nullable: true
+    UserStatus:
+      type: string
+      description: Status of the user
+      enum:
+        - INVITED
+        - ACTIVE
+        - CLOSED
+        - DISABLED
+        - DELETED
+        - PENDING_ACTIVATION
+        - INACTIVE
+        - ARCHIVED
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: OAuth2 security scheme
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts-api.brex.com/oauth2/default/v1/authorize
+          tokenUrl: https://accounts-api.brex.com/oauth2/default/v1/token
+          scopes:
+            openid: openid
+            offline_access: offline access
+            users.readonly: View user data
+            users: View and manage user data
+            locations.readonly: View location data
+            locations: View and manage location data
+            departments.readonly: View department data
+            departments: View and manage department data
+            titles: View and manage title data
+            titles.readonly: View title data
+            cards: View and manage card data
+            cards.readonly: View card data
+            cards.pan: View and Send card number data
+            legal_entities: View and manage legal entities
+            legal_entities.readonly: View legal entities
+x-explorer-enabled: false

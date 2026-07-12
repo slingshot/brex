@@ -1,0 +1,2570 @@
+openapi: 3.0.1
+info:
+  title: Budgets API
+  description: |
+
+    The budgets API lets you manage your Brex Budgets and Spend Limits.
+  contact:
+    name: Admin
+    url: https://brex.com
+    email: developer-support@brex.com
+  version: '1.0'
+  x-logo:
+    altText: Brex Logo
+    url: https://www.brex.com/logo.png
+servers:
+  - url: https://api.brex.com
+    description: Production
+  - url: https://api-staging.brex.com
+    description: >-
+      Staging (Note: This is not a sandbox. It will not work with customer
+      tokens.)
+security:
+  - OAuth2: []
+tags:
+  - name: Spend Limits (v1)
+    description: >-
+      Endpoints for Spend Limits data. Please note that /v1/budgets targets
+      spend limits, and will soon be deprecated in favor of /v2/spend_limits.
+  - name: Budget Programs
+    description: Endpoints for Budget Programs data.
+  - name: Budgets
+    description: Endpoints for Budgets data.
+  - name: Spend Limits (v2)
+    description: Endpoints for spend limits data.
+paths:
+  /v1/budget_programs:
+    get:
+      tags:
+        - Budget Programs
+      summary: |
+
+        List Budget Programs
+      description: |
+
+        Lists Budget Programs belonging to this account
+      operationId: listBudgetPrograms
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+      responses:
+        '200':
+          description: |
+
+            A page with a list of Budget Programs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_BudgetProgram_'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - OAuth2:
+            - budgets.readonly
+            - budgets
+  /v1/budget_programs/{id}:
+    get:
+      tags:
+        - Budget Programs
+      summary: |
+
+        Get Budget Program
+      description: |
+
+        Retrieves a Budget Program by ID
+      operationId: getBudgetProgramById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |
+
+            The Budget Program that was retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetProgram'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets.readonly
+            - budgets
+  /v1/budgets:
+    get:
+      tags:
+        - Spend Limits (v1)
+      summary: |
+
+        List Spend Limits
+      description: |
+
+        Lists Spend Limits belonging to this account
+      operationId: listBudgets
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+      responses:
+        '200':
+          description: |
+
+            A page with a list of Spend Limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_Budget_'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - OAuth2:
+            - budgets.readonly
+            - budgets
+    post:
+      tags:
+        - Spend Limits (v1)
+      summary: |
+
+        Create Spend Limit
+      description: |
+
+        Creates a Spend Limit
+      operationId: createBudget
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBudgetRequest'
+        required: true
+      responses:
+        '200':
+          description: |
+
+            The Spend Limit that was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - OAuth2:
+            - budgets
+  /v1/budgets/{id}:
+    get:
+      tags:
+        - Spend Limits (v1)
+      summary: |
+
+        Get Spend Limit
+      description: |
+
+        Retrieves a Spend Limit by ID
+      operationId: getBudgetById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |
+
+            The Spend Limit that was retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets.readonly
+            - budgets
+    put:
+      tags:
+        - Spend Limits (v1)
+      summary: |
+
+        Update Spend Limit
+      description: |
+
+        Updates a Spend Limit
+      operationId: updateBudget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBudgetRequest'
+        required: true
+      responses:
+        '200':
+          description: |
+
+            The Spend Limit that was updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets
+  /v1/budgets/{id}/archive:
+    post:
+      tags:
+        - Spend Limits (v1)
+      summary: |
+
+        Archive a Spend Limit
+      description: >
+
+        Archives a Spend Limit, making it unusable for future expenses and
+        removing it from the UI
+      operationId: archiveBudget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |
+
+            The Spend Limit that was archived
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets
+  /v2/budgets:
+    get:
+      tags:
+        - Budgets
+      summary: |
+
+        List Budgets
+      description: |
+
+        Retrieves a list of Budgets
+      operationId: listSpendBudgets
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+      responses:
+        '200':
+          description: |
+
+            A page with a list of Budgets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_SpendBudget_'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets.readonly
+            - budgets
+    post:
+      tags:
+        - Budgets
+      summary: |
+
+        Create Budget
+      description: |
+
+        Creates a Budget
+      operationId: createSpendBudget
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSpendBudgetRequest'
+        required: true
+      responses:
+        '200':
+          description: |
+
+            The Budget that was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpendBudget'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - OAuth2:
+            - budgets
+  /v2/budgets/{id}:
+    get:
+      tags:
+        - Budgets
+      summary: |
+
+        Get Budget
+      description: |
+
+        Retrieves a Budget by ID
+      operationId: getSpendBudgetById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |
+
+            The Budget that was retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpendBudget'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets.readonly
+            - budgets
+    put:
+      tags:
+        - Budgets
+      summary: |
+
+        Update Budget
+      description: |
+
+        Updates a Budget
+      operationId: updateSpendBudget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSpendBudgetRequest'
+        required: true
+      responses:
+        '200':
+          description: |
+
+            The Budget that was updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpendBudget'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets
+  /v2/budgets/{id}/archive:
+    post:
+      tags:
+        - Budgets
+      summary: |
+
+        Archive a Budget
+      description: >
+
+        Archives a Budget, making any Spend Limits beneath it unusable for
+        future expenses and removing it from the UI
+      operationId: archiveSpendBudget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |
+
+            The Budget that was archived
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets
+  /v2/spend_limits:
+    get:
+      tags:
+        - Spend Limits (v2)
+      summary: |
+
+        List Spend Limits
+      description: |
+
+        Retrieves a list of Spend Limits
+      operationId: listSpendLimits
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+        - name: member_user_id[]
+          in: query
+          schema:
+            type: array
+            description: |
+
+              Filter for spend limits these user ids are members of.
+            nullable: true
+            items:
+              type: string
+      responses:
+        '200':
+          description: |
+
+            A page with a list of Spend Limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_SpendLimit_'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets.readonly
+            - budgets
+    post:
+      tags:
+        - Spend Limits (v2)
+      summary: |
+
+        Create Spend Limit
+      description: |
+
+        Creates a Spend Limit
+      operationId: createSpendLimit
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSpendLimitRequest'
+        required: true
+      responses:
+        '200':
+          description: |
+
+            The Spend Limit that was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpendLimit'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - OAuth2:
+            - budgets
+  /v2/spend_limits/{id}:
+    get:
+      tags:
+        - Spend Limits (v2)
+      summary: |
+
+        Get Spend Limit
+      description: |
+
+        Retrieves a Spend Limit by ID
+      operationId: getSpendLimitById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |
+
+            The Spend Limit that was retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpendLimit'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets.readonly
+            - budgets
+    put:
+      tags:
+        - Spend Limits (v2)
+      summary: |
+
+        Update Spend Limit
+      description: |
+
+        Updates a Spend Limit
+      operationId: updateSpendLimit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSpendLimitRequest'
+        required: true
+      responses:
+        '200':
+          description: |
+
+            The Spend Limit that was updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpendLimit'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets
+  /v2/spend_limits/{id}/archive:
+    post:
+      tags:
+        - Spend Limits (v2)
+      summary: |
+
+        Archive a Spend Limit
+      description: >
+
+        Archives a Spend Limit, making it unusable for future expenses and
+        removing it from the UI
+      operationId: archiveSpendLimit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |
+
+            The Spend Limit that was archived
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      security:
+        - OAuth2:
+            - budgets
+components:
+  schemas:
+    AuthorizationSettings:
+      required:
+        - authorization_type
+        - base_limit
+        - limit_with_increases
+        - rollover_refresh_rate
+      type: object
+      properties:
+        base_limit:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >
+
+                Base input limit of the Spend Limit, without limit
+                increases/rollovers/etc.
+        limit_buffer_percentage:
+          type: integer
+          description: |
+
+            The percentage of flexible buffer on the limit as a 0-100 integer.
+          format: int32
+          nullable: true
+        authorization_type:
+          allOf:
+            - $ref: '#/components/schemas/AuthorizationType'
+            - description: |
+
+                Whether authorizations will decline based on available balance.
+        rollover_refresh_rate:
+          allOf:
+            - $ref: '#/components/schemas/RolloverRefreshRate'
+            - description: >
+
+                The rollover refresh rate for this spend limit (the recurrence
+                by which all rolled over unused funds within the cycle should no
+                longer roll over to the next period).
+        limit_with_increases:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >
+
+                The current adjusted limit of the spend limit (base limit +
+                active limit increases).
+    AuthorizationType:
+      type: string
+      description: |
+
+        Whether authorizations will decline based on available balance.
+      enum:
+        - HARD
+        - SOFT
+    AuthorizationVisibility:
+      type: string
+      description: >
+
+        Describes if the limit of the Spend Limit is visible to all members, or
+        just controllers, bookkeepers, and owners (direct or ancestral).
+      enum:
+        - PUBLIC
+        - PRIVATE
+    AutoCreateLimitCardsSetting:
+      type: string
+      description: |
+
+        Setting for how auto limit card creation works for members.
+      enum:
+        - DISABLED
+        - ALL_MEMBERS
+    AutoTransferCardsSetting:
+      type: string
+      description: |
+
+        Setting for how auto transfer works for virtual cards.
+      enum:
+        - DISABLED
+        - ENABLED
+    Budget:
+      required:
+        - account_id
+        - budget_id
+        - budget_status
+        - budget_type
+        - limit_visibility
+        - member_user_ids
+        - name
+        - owner_user_ids
+        - period_type
+        - spend_type
+      type: object
+      properties:
+        budget_id:
+          type: string
+          description: |
+
+            Unique ID for the Spend Limit.
+        account_id:
+          type: string
+          description: |
+
+            The Brex account this Spend Limit belongs to.
+        creator_user_id:
+          type: string
+          description: |
+
+            The ID of the user who originally created this Spend Limit.
+          nullable: true
+        name:
+          type: string
+          description: |
+
+            Name for the Spend Limit.
+        description:
+          type: string
+          description: |
+
+            Description of what the Spend Limit is used for.
+          nullable: true
+        parent_budget_id:
+          type: string
+          description: |
+
+            ID of parent Budget.
+          nullable: true
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Spend Limit.
+          items:
+            type: string
+        member_user_ids:
+          type: array
+          description: |
+
+            User IDs of the members of the Spend Limit.
+          items:
+            type: string
+        period_type:
+          $ref: '#/components/schemas/PeriodType'
+        start_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should stop counting.
+          format: date
+          nullable: true
+        limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        budget_status:
+          $ref: '#/components/schemas/BudgetStatus'
+        limit_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/LimitType'
+        spend_type:
+          $ref: '#/components/schemas/SpendType'
+        current_period_balance:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/BudgetPeriodBalance'
+        limit_visibility:
+          allOf:
+            - $ref: '#/components/schemas/BudgetLimitVisibilityType'
+            - description: >
+
+                Determines if Spend Limit members are allowed to view the Spend
+                Limit's limit.
+        templateId:
+          type: string
+          nullable: true
+        budget_type:
+          allOf:
+            - $ref: '#/components/schemas/BudgetType'
+            - description: >
+
+                Whether this is a Budget or a Spend Limit for post-bifurcation
+                entities. 
+    BudgetBlueprint:
+      required:
+        - id
+        - limit_type
+        - limit_visibility
+        - name
+        - owner_user_ids
+        - parent_budget_id
+        - period_type
+        - spend_type
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: |
+
+            Name for the Spend Limit.
+        description:
+          type: string
+          description: |
+
+            Description of what the Spend Limit is used for.
+          nullable: true
+        parent_budget_id:
+          type: string
+          description: |
+
+            ID of parent Budget.
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Spend Limit.
+          items:
+            type: string
+        period_type:
+          $ref: '#/components/schemas/PeriodType'
+        start_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should stop counting.
+          format: date
+          nullable: true
+        limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        limit_type:
+          $ref: '#/components/schemas/LimitType'
+        spend_type:
+          $ref: '#/components/schemas/SpendType'
+        limit_visibility:
+          $ref: '#/components/schemas/BudgetLimitVisibilityType'
+      description: |
+
+        Blueprint for provisioning Spend Limits for a Budget Program.
+    BudgetLimitVisibilityType:
+      type: string
+      description: >
+
+        Determines if Spend Limit members are allowed to view the Spend Limit's
+        limit.
+      enum:
+        - SHARED
+        - PRIVATE
+    BudgetPeriodBalance:
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        balance:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+      description: |
+
+        Current Spend Limit period balance.
+    BudgetProgram:
+      required:
+        - budget_blueprints
+        - budget_program_status
+        - created_at
+        - id
+        - name
+        - updated_at
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        budget_blueprints:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetBlueprint'
+        existing_budget_ids:
+          type: array
+          description: |
+
+            IDs for existing Spend Limits associated with this Budget Program.
+          nullable: true
+          items:
+            type: string
+        employee_filter:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/EmployeeFilter'
+        budget_program_status:
+          $ref: '#/components/schemas/BudgetProgramStatus'
+        creator_user_id:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date
+        updated_at:
+          type: string
+          format: date
+      description: |
+
+        Budget Program used to create Spend Limits for eligible users.
+    BudgetProgramStatus:
+      type: string
+      enum:
+        - BUDGET_PROGRAM_STATUS_ACTIVE
+        - BUDGET_PROGRAM_STATUS_INACTIVE
+        - BUDGET_PROGRAM_STATUS_DELETED
+    BudgetStatus:
+      type: string
+      description: |
+
+        Status of the Spend Limit e.g. APPROVED.
+      enum:
+        - APPROVED
+        - EXPIRED
+        - TERMINATED
+        - DELETED
+    BudgetType:
+      type: string
+      description: >
+
+        Whether this is a Budget or a Spend Limit for post-bifurcation
+        entities. 
+      enum:
+        - BUDGET
+        - SPEND_LIMIT
+    CreateAuthorizationSettings:
+      required:
+        - authorization_type
+        - base_limit
+        - rollover_refresh_rate
+      type: object
+      properties:
+        base_limit:
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >
+
+                Base input limit of the Spend Limit, without limit
+                increases/rollovers/etc.
+        limit_buffer_percentage:
+          type: integer
+          description: |
+
+            The percentage of flexible buffer on the limit as a 0-100 integer.
+          format: int32
+          nullable: true
+        authorization_type:
+          allOf:
+            - $ref: '#/components/schemas/AuthorizationType'
+            - description: |
+
+                Whether authorizations will decline based on available balance.
+        rollover_refresh_rate:
+          allOf:
+            - $ref: '#/components/schemas/RolloverRefreshRate'
+            - description: >
+
+                The rollover refresh rate for this spend limit (the recurrence
+                by which all rolled over unused funds within the cycle should no
+                longer roll over to the next period).
+    CreateBudgetBlueprintRequest:
+      required:
+        - description
+        - limit
+        - limit_type
+        - limit_visibility
+        - name
+        - parent_budget_id
+        - period_type
+        - spend_type
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+
+            Name for the Spend Limit.
+        description:
+          type: string
+          description: |
+
+            Description of what the Spend Limit is used for.
+        parent_budget_id:
+          type: string
+          description: |
+
+            ID of parent Budget.
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Spend Limit.
+          nullable: true
+          items:
+            type: string
+        period_type:
+          $ref: '#/components/schemas/PeriodType'
+        start_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should stop counting.
+          format: date
+          nullable: true
+        limit:
+          $ref: '#/components/schemas/Money'
+        limit_type:
+          $ref: '#/components/schemas/LimitType'
+        spend_type:
+          $ref: '#/components/schemas/SpendType'
+        limit_visibility:
+          $ref: '#/components/schemas/BudgetLimitVisibilityType'
+      description: |
+
+        Blueprint for provisioning Spend Limits for a Budget Program.
+    CreateBudgetProgramRequest:
+      required:
+        - budget_blueprints
+        - name
+      type: object
+      properties:
+        existing_budget_ids:
+          type: array
+          description: |
+
+            IDs for existing Spend Limits associated with this Budget Program.
+          nullable: true
+          items:
+            type: string
+        budget_blueprints:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateBudgetBlueprintRequest'
+        employee_filter:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/EmployeeFilter'
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+      description: |
+
+        Budget Program used to create Spend Limits for eligible users.
+    CreateBudgetRequest:
+      required:
+        - description
+        - limit
+        - limit_type
+        - limit_visibility
+        - name
+        - parent_budget_id
+        - period_type
+        - spend_type
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+
+            Name for the Spend Limit.
+        description:
+          type: string
+          description: |
+
+            Description of what the Spend Limit is used for.
+        parent_budget_id:
+          type: string
+          description: |
+
+            ID of parent Budget.
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Spend Limit.
+          nullable: true
+          items:
+            type: string
+        member_user_ids:
+          type: array
+          description: |
+
+            User IDs of the members of the Spend Limit.
+          nullable: true
+          items:
+            type: string
+        period_type:
+          $ref: '#/components/schemas/PeriodType'
+        limit:
+          $ref: '#/components/schemas/Money'
+        limit_type:
+          $ref: '#/components/schemas/LimitType'
+        spend_type:
+          $ref: '#/components/schemas/SpendType'
+        start_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should stop counting.
+          format: date
+          nullable: true
+        limit_visibility:
+          $ref: '#/components/schemas/BudgetLimitVisibilityType'
+        policy_id:
+          type: string
+          nullable: true
+        entity_id:
+          type: string
+          nullable: true
+    CreateSpendBudgetRequest:
+      required:
+        - amount
+        - description
+        - name
+        - parent_budget_id
+        - period_recurrence_type
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+
+            Name for the Budget.
+        description:
+          type: string
+          description: |
+
+            Description of what the Budget is used for.
+        parent_budget_id:
+          type: string
+          description: |
+
+            ID of parent Budget.
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Budget.
+          nullable: true
+          items:
+            type: string
+        period_recurrence_type:
+          allOf:
+            - $ref: '#/components/schemas/PeriodRecurrenceType'
+            - description: |
+
+                Period type of the Budget e.g. MONTHLY.
+        amount:
+          $ref: '#/components/schemas/Money'
+        limit_type:
+          nullable: true
+          deprecated: true
+          allOf:
+            - $ref: '#/components/schemas/LimitType_3'
+            - description: >
+
+                Whether the Budget amount blocks spend. `HARD` is rejected; use
+                `/v2/spend_limits` for hard-auth limits.
+        start_date:
+          type: string
+          description: |
+
+            The date when the Budget should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The date when the Budget should stop counting.
+          format: date
+          nullable: true
+    CreateSpendLimitRequest:
+      required:
+        - authorization_settings
+        - authorization_visibility
+        - auto_create_limit_cards_setting
+        - auto_transfer_cards_setting
+        - expense_policy_id
+        - expense_visibility
+        - limit_increase_setting
+        - name
+        - period_recurrence_type
+        - spend_type
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+
+            Name for the Spend Limit.
+        description:
+          type: string
+          description: |
+
+            Description of what the Spend Limit is used for.
+          nullable: true
+        parent_budget_id:
+          type: string
+          description: |
+
+            ID of parent Budget.
+          nullable: true
+        period_recurrence_type:
+          allOf:
+            - $ref: '#/components/schemas/SpendLimitPeriodRecurrenceType'
+            - description: |
+
+                Period type of the Spend Limit e.g. MONTHLY.
+        start_date:
+          type: string
+          description: |
+
+            The date when the Spend Limit should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The date when the Spend Limit should expire.
+          format: date
+          nullable: true
+        authorization_settings:
+          allOf:
+            - $ref: '#/components/schemas/CreateAuthorizationSettings'
+            - description: |
+
+                Spend authorization settings.
+        expense_visibility:
+          allOf:
+            - $ref: '#/components/schemas/ExpenseVisibility'
+            - description: >
+
+                Whether or not expense related to this Spend Limit should be
+                viewable to all members.
+        authorization_visibility:
+          allOf:
+            - $ref: '#/components/schemas/AuthorizationVisibility'
+            - description: >
+
+                Describes if the limit of the Spend Limit is visible to all
+                members, or just controllers, bookkeepers, and owners (direct or
+                ancestral).
+        transaction_limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: |
+
+                The transaction limit that this Spend Limit will enforce.
+        limit_increase_setting:
+          allOf:
+            - $ref: '#/components/schemas/LimitIncreaseSetting'
+            - description: |
+
+                Whether or not members can request limit increases.
+        spend_type:
+          allOf:
+            - $ref: '#/components/schemas/SpendType'
+            - description: >
+
+                Whether this Spend Limit only can be spent from by cards
+                provisioned by this Spend Limit. 
+        auto_transfer_cards_setting:
+          allOf:
+            - $ref: '#/components/schemas/AutoTransferCardsSetting'
+            - description: |
+
+                Setting for how auto transfer works for virtual cards.
+        auto_create_limit_cards_setting:
+          allOf:
+            - $ref: '#/components/schemas/AutoCreateLimitCardsSetting'
+            - description: |
+
+                Setting for how auto limit card creation works for members.
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Spend Limit.
+          nullable: true
+          items:
+            type: string
+        member_user_ids:
+          type: array
+          description: |
+
+            User IDs of the members of the Spend Limit.
+          nullable: true
+          items:
+            type: string
+        expense_policy_id:
+          type: string
+          description: |
+
+            The ID of the expense policy corresponding to this Spend Limit.
+        limit_increase_request_policy_id:
+          type: string
+          description: >
+
+            The ID of the policy for limit increase requests for this Spend
+            Limit.
+          nullable: true
+        limit_approval_policy_id:
+          type: string
+          description: >
+
+            The ID of the policy for limit increase approval requests. Meant to
+            replace limit_increase_request_policy_id.
+          nullable: true
+        legal_entity_id:
+          type: string
+          description: >
+
+            The legal entity ID to which Spend Limit expenses will be
+            attributed. If not set, expenses will be attributed to the spending
+            user's entity.
+          nullable: true
+        department_id:
+          type: string
+          description: |
+
+            The department ID to which Spend Limit expenses will be attributed.
+          nullable: true
+    EmployeeFilter:
+      type: object
+      properties:
+        employment_status:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/EmploymentStatus'
+        employment_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/EmploymentType'
+      description: |
+
+        A filter used to determine if a user adheres to a Budget Program.
+    EmploymentStatus:
+      type: string
+      description: |
+
+        A filter used to determine if a user adheres to a Budget Program.
+      enum:
+        - EMPLOYMENT_STATUS_ACTIVE
+        - EMPLOYMENT_STATUS_INACTIVE
+        - EMPLOYMENT_STATUS_PENDING
+    EmploymentType:
+      type: string
+      description: |
+
+        What kind of employment the employee has.
+      enum:
+        - EMPLOYMENT_TYPE_FULL_TIME
+        - EMPLOYMENT_TYPE_PART_TIME
+        - EMPLOYMENT_TYPE_CONTRACTOR
+        - EMPLOYMENT_TYPE_INTERN
+        - EMPLOYMENT_TYPE_FREELANCE
+    ExpenseVisibility:
+      type: string
+      description: >
+
+        Whether or not expense related to this Spend Limit should be viewable to
+        all members.
+      enum:
+        - SHARED
+        - PRIVATE
+    LimitIncreaseSetting:
+      type: string
+      description: |
+
+        Whether or not members can request limit increases.
+      enum:
+        - ENABLED
+        - DISABLED
+    LimitType:
+      type: string
+      description: |
+
+        Whether the Spend Limit's limit blocks spend.
+      enum:
+        - HARD
+        - SOFT
+    LimitType_1:
+      type: string
+      description: >
+
+        Whether the Budget amount blocks spend. `HARD` is rejected; use
+        `/v2/spend_limits` for hard-auth limits.
+      enum:
+        - HARD
+        - SOFT
+    LimitType_3:
+      type: string
+      description: >
+
+        Whether the Budget amount blocks spend. `HARD` is rejected; use
+        `/v2/spend_limits` for hard-auth limits.
+      enum:
+        - HARD
+        - SOFT
+    LimitType_4:
+      type: string
+      description: >
+
+        Whether the Budget amount blocks spend. `HARD` is rejected; use
+        `/v2/spend_limits` for hard-auth limits.
+      enum:
+        - HARD
+        - SOFT
+    MerchantCategory:
+      type: string
+      enum:
+        - ADVERTISING_MARKETING
+        - GROCERY
+        - TELEPHONY
+        - OFFICE_SUPPLIES
+        - PRIVATE_AIR_TRAVEL
+        - CLOTHING
+        - CAR_RENTAL
+        - VEHICLE_EXPENSES
+        - RESTAURANTS
+        - GAMBLING
+        - FLOWERS
+        - ELECTRONICS
+        - LEGAL_SERVICES
+        - UTILITIES
+        - FURNITURE
+        - BARS_NIGHTLIFE
+        - LAUNDRY
+        - EVENT_EXPENSES
+        - SHIPPING
+        - OTHER_TRAVEL_EXPENSES
+        - CHARITY
+        - SOFTWARE
+        - LODGING
+        - FACILITIES_EXPENSES
+        - SERVERS
+        - CONFERENCES
+        - FOOD_DELIVERY
+        - RENT
+        - AIRLINE_EXPENSES
+        - OTHER_BUSINESS_EXPENSES
+        - BANK_FINANCIAL_FEES
+        - BOOKS_NEWSPAPERS
+        - CONSULTANT_CONTRACTOR
+        - CORPORATE_INSURANCE
+        - DIGITAL_GOODS
+        - LICENSES_TAXES
+        - GAS_FUEL
+        - GENERAL_MERCHANDISE
+        - MEDICAL
+        - MEMBERSHIPS_CLUBS
+        - PARKING_EXPENSES
+        - POLITICAL_DONATIONS
+        - PUBLIC_TRANSPORTATION
+        - RECURRING_SOFTWARE_SAAS
+        - RIDESHARE_TAXI
+        - TOLL_BRIDGE_FEES
+        - TRAINING_EDUCATION
+        - TRAVEL
+    MerchantCategoryControls:
+      type: object
+      properties:
+        allowed_merchant_categories:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/MerchantCategory'
+        blocked_merchant_categories:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/MerchantCategory'
+    Money:
+      required:
+        - amount
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: >-
+            The amount of money, in the smallest denomination of the currency
+            indicated by currency. For example, when currency is USD, amount is
+            in cents.
+          format: int64
+          example: 700
+        currency:
+          type: string
+          description: The type of currency, in ISO 4217 format.
+          nullable: true
+          example: USD
+          default: USD
+      description: >
+
+        Money fields can be signed or unsigned. Fields are signed (an unsigned
+        value will be interpreted as positive). The amount of money will be
+        represented in the smallest denomination
+
+        of the currency indicated. For example, USD 7.00 will be represented in
+        cents with an amount of 700.
+    Page_BudgetProgram_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetProgram'
+    Page_Budget_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Budget'
+    Page_SpendBudget_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpendBudget'
+    Page_SpendLimit_:
+      required:
+        - items
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpendLimit'
+    PeriodRecurrenceType:
+      type: string
+      description: |
+
+        Period type of the Budget e.g. MONTHLY.
+      enum:
+        - WEEKLY
+        - MONTHLY
+        - QUARTERLY
+        - YEARLY
+        - ONE_TIME
+    PeriodType:
+      type: string
+      description: |
+
+        Period type of the Spend Limit e.g. MONTHLY.
+      enum:
+        - WEEKLY
+        - MONTHLY
+        - QUARTERLY
+        - YEARLY
+        - ONE_TIME
+    RolloverRefreshRate:
+      type: string
+      description: >
+
+        The rollover refresh rate for this spend limit (the recurrence by which
+        all rolled over unused funds within the cycle should no longer roll over
+        to the next period).
+      enum:
+        - 'OFF'
+        - NEVER
+        - PER_MONTH
+        - PER_QUARTER
+        - PER_YEAR
+    SpendBudget:
+      required:
+        - account_id
+        - budget_id
+        - name
+        - owner_user_ids
+        - period_recurrence_type
+        - spend_budget_status
+      type: object
+      properties:
+        budget_id:
+          type: string
+          description: |
+
+            Unique ID for the Budget.
+        account_id:
+          type: string
+          description: |
+
+            The Brex account this Budget belongs to.
+        name:
+          type: string
+          description: |
+
+            Name for the Budget.
+        description:
+          type: string
+          description: |
+
+            Description of what the Budget is used for.
+          nullable: true
+        parent_budget_id:
+          type: string
+          description: |
+
+            ID of parent Budget.
+          nullable: true
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Budget.
+          items:
+            type: string
+        period_recurrence_type:
+          allOf:
+            - $ref: '#/components/schemas/PeriodRecurrenceType'
+            - description: |
+
+                Period type of the Budget e.g. MONTHLY.
+        start_date:
+          type: string
+          description: |
+
+            The date when the Budget should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The date when the Budget should stop counting.
+          format: date
+          nullable: true
+        amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        spend_budget_status:
+          allOf:
+            - $ref: '#/components/schemas/SpendBudgetStatus'
+            - description: |
+
+                Status of the Budget e.g. ACTIVE.
+        limit_type:
+          nullable: true
+          deprecated: true
+          allOf:
+            - $ref: '#/components/schemas/LimitType_1'
+            - description: >
+
+                Whether the Budget amount blocks spend. `HARD` is rejected; use
+                `/v2/spend_limits` for hard-auth limits.
+    SpendBudgetStatus:
+      type: string
+      description: |
+
+        Status of the Budget e.g. ACTIVE.
+      enum:
+        - ACTIVE
+        - ARCHIVED
+        - DELETED
+        - EXPIRED
+    SpendLimit:
+      required:
+        - account_id
+        - authorization_visibility
+        - auto_create_limit_cards_setting
+        - auto_transfer_cards_setting
+        - expense_policy_id
+        - expense_visibility
+        - id
+        - limit_increase_setting
+        - member_user_ids
+        - name
+        - owner_user_ids
+        - period_recurrence_type
+        - spend_type
+        - status
+      type: object
+      properties:
+        id:
+          type: string
+          description: |
+
+            Unique ID for the Spend Limit.
+        account_id:
+          type: string
+          description: |
+
+            The Brex account this Spend Limit belongs to.
+        name:
+          type: string
+          description: |
+
+            Name for the Spend Limit.
+        description:
+          type: string
+          description: |
+
+            Description of what the Spend Limit is used for.
+          nullable: true
+        parent_budget_id:
+          type: string
+          description: |
+
+            ID of parent Budget.
+          nullable: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/SpendLimitStatus'
+            - description: |
+
+                Status of the Spend Limit e.g. ACTIVE.
+        period_recurrence_type:
+          allOf:
+            - $ref: '#/components/schemas/SpendLimitPeriodRecurrenceType'
+            - description: |
+
+                Period type of the Spend Limit e.g. MONTHLY.
+        start_date:
+          type: string
+          description: |
+
+            The date when the Spend Limit should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The date when the Spend Limit should expire.
+          format: date
+          nullable: true
+        start_time_utc:
+          type: string
+          description: |
+
+            The UTC time when the Spend Limit should start counting.
+          format: date-time
+          nullable: true
+        end_time_utc:
+          type: string
+          description: |
+
+            The UTC time when the Spend Limit should expire.
+          format: date-time
+          nullable: true
+        authorization_settings:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/AuthorizationSettings'
+            - description: |
+
+                Spend authorization settings.
+        expense_visibility:
+          allOf:
+            - $ref: '#/components/schemas/ExpenseVisibility'
+            - description: >
+
+                Whether or not expense related to this Spend Limit should be
+                viewable to all members.
+        authorization_visibility:
+          allOf:
+            - $ref: '#/components/schemas/AuthorizationVisibility'
+            - description: >
+
+                Describes if the limit of the Spend Limit is visible to all
+                members, or just controllers, bookkeepers, and owners (direct or
+                ancestral).
+        merchant_category_controls:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/MerchantCategoryControls'
+            - description: |
+
+                The Spend Limit's merchant category controls.
+        transaction_limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: |
+
+                The transaction limit that this Spend Limit will enforce.
+        limit_increase_setting:
+          allOf:
+            - $ref: '#/components/schemas/LimitIncreaseSetting'
+            - description: |
+
+                Whether or not members can request limit increases.
+        spend_type:
+          allOf:
+            - $ref: '#/components/schemas/SpendType'
+            - description: >
+
+                Whether this Spend Limit only can be spent from by cards
+                provisioned by this Spend Limit. 
+        auto_transfer_cards_setting:
+          allOf:
+            - $ref: '#/components/schemas/AutoTransferCardsSetting'
+            - description: |
+
+                Setting for how auto transfer works for virtual cards.
+        auto_create_limit_cards_setting:
+          allOf:
+            - $ref: '#/components/schemas/AutoCreateLimitCardsSetting'
+            - description: |
+
+                Setting for how auto limit card creation works for members.
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Spend Limit.
+          items:
+            type: string
+        member_user_ids:
+          type: array
+          description: |
+
+            User IDs of the members of the Spend Limit.
+          items:
+            type: string
+        expense_policy_id:
+          type: string
+          description: |
+
+            The ID of the expense policy corresponding to this Spend Limit.
+        limit_increase_request_policy_id:
+          type: string
+          description: >
+
+            The ID of the policy for limit increase requests for this Spend
+            Limit.
+          nullable: true
+        limit_approval_policy_id:
+          type: string
+          description: >
+
+            The ID of the policy for limit increase approval requests. Meant to
+            replace limit_increase_request_policy_id.
+          nullable: true
+        current_period_balance:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendLimitPeriodBalance'
+        legal_entity_id:
+          type: string
+          description: >
+
+            The legal entity ID to which Spend Limit expenses will be
+            attributed. If not set, expenses will be attributed to the spending
+            user's entity.
+          nullable: true
+        department_id:
+          type: string
+          description: |
+
+            The department ID to which Spend Limit expenses will be attributed.
+          nullable: true
+    SpendLimitPeriodBalance:
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        start_time:
+          type: string
+          format: date-time
+          nullable: true
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+        amount_spent:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        rollover_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+    SpendLimitPeriodRecurrenceType:
+      type: string
+      description: |
+
+        Period type of the Spend Limit e.g. MONTHLY.
+      enum:
+        - PER_WEEK
+        - PER_MONTH
+        - PER_QUARTER
+        - PER_YEAR
+        - ONE_TIME
+    SpendLimitStatus:
+      type: string
+      description: |
+
+        Status of the Spend Limit e.g. ACTIVE.
+      enum:
+        - ACTIVE
+        - EXPIRED
+        - ARCHIVED
+        - DELETED
+    SpendType:
+      type: string
+      description: >
+
+        Whether this Spend Limit only can be spent from by cards provisioned by
+        this Spend Limit. 
+      enum:
+        - BUDGET_PROVISIONED_CARDS_ONLY
+        - NON_BUDGET_PROVISIONED_CARDS_ALLOWED
+    UpdateAuthorizationSettings:
+      type: object
+      properties:
+        base_limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: >
+
+                Base input limit of the Spend Limit, without limit
+                increases/rollovers/etc.
+        limit_buffer_percentage:
+          type: integer
+          description: |
+
+            The percentage of flexible buffer on the limit as a 0-100 integer.
+          format: int32
+          nullable: true
+        authorization_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/AuthorizationType'
+            - description: |
+
+                Whether authorizations will decline based on available balance.
+        rollover_refresh_rate:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/RolloverRefreshRate'
+            - description: >
+
+                The rollover refresh rate for this spend limit (the recurrence
+                by which all rolled over unused funds within the cycle should no
+                longer roll over to the next period).
+    UpdateBudgetBlueprintRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          description: >
+
+            ID of budget blueprint to update, omit if adding new budget
+            blueprint to budget program.
+          nullable: true
+        name:
+          type: string
+          description: |
+
+            Name for the Spend Limit.
+          nullable: true
+        description:
+          type: string
+          description: |
+
+            Description of what the Spend Limit is used for.
+          nullable: true
+        parent_budget_id:
+          type: string
+          description: |
+
+            ID of parent Budget.
+          nullable: true
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Spend Limit.
+          nullable: true
+          items:
+            type: string
+        period_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/PeriodType'
+        start_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should stop counting.
+          format: date
+          nullable: true
+        limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        limit_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/LimitType'
+        spend_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendType'
+      description: |
+
+        Blueprint for provisioning Spend Limits for a Budget Program.
+    UpdateBudgetProgramRequest:
+      type: object
+      properties:
+        existing_budget_ids:
+          type: array
+          description: |
+
+            IDs for existing Spend Limits associated with this Budget Program.
+          nullable: true
+          items:
+            type: string
+        budget_blueprints:
+          type: array
+          description: >
+
+            The Blueprints to update the budget program with. Blueprints without
+            an ID are treated as new blueprints to be created.
+
+            Blueprints that exist currently on the Budget Program, but are
+            missing from the input, will be deleted.
+          nullable: true
+          items:
+            $ref: '#/components/schemas/UpdateBudgetBlueprintRequest'
+        employee_filter:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/EmployeeFilter'
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+      description: |
+
+        Budget Program used to create Spend Limits for eligible users.
+    UpdateBudgetRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+
+            Name for the Spend Limit.
+          nullable: true
+        description:
+          type: string
+          description: |
+
+            Description of what the Spend Limit is used for.
+          nullable: true
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Spend Limit.
+          nullable: true
+          items:
+            type: string
+        member_user_ids:
+          type: array
+          description: |
+
+            User IDs of the members of the Spend Limit.
+          nullable: true
+          items:
+            type: string
+        limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+        limit_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/LimitType'
+        spend_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendType'
+        start_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The UTC date when the Spend Limit should stop counting.
+          format: date
+          nullable: true
+        limit_visibility:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/BudgetLimitVisibilityType'
+        period_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/PeriodType'
+    UpdateSpendBudgetRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+
+            Name for the Budget.
+          nullable: true
+        description:
+          type: string
+          description: |
+
+            Description of what the Budget is used for.
+          nullable: true
+        parent_budget_id:
+          type: string
+          description: |
+
+            ID of parent Budget.
+          nullable: true
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Budget.
+          nullable: true
+          items:
+            type: string
+        period_recurrence_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/PeriodRecurrenceType'
+            - description: |
+
+                Period type of the Budget e.g. MONTHLY.
+        amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: |
+
+                Target amount for the Budget to track.
+        limit_type:
+          nullable: true
+          deprecated: true
+          allOf:
+            - $ref: '#/components/schemas/LimitType_4'
+            - description: >
+
+                Whether the Budget amount blocks spend. `HARD` is rejected; use
+                `/v2/spend_limits` for hard-auth limits.
+        start_date:
+          type: string
+          description: |
+
+            The date when the Budget should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The date when the Budget should stop counting.
+          format: date
+          nullable: true
+    UpdateSpendLimitRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+
+            Name for the Spend Limit.
+          nullable: true
+        description:
+          type: string
+          description: |
+
+            Description of what the Spend Limit is used for.
+          nullable: true
+        status:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendLimitStatus'
+            - description: |
+
+                Status of the Spend Limit e.g. ACTIVE.
+        period_recurrence_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendLimitPeriodRecurrenceType'
+            - description: |
+
+                Period type of the Spend Limit e.g. MONTHLY.
+        start_date:
+          type: string
+          description: |
+
+            The date when the Spend Limit should start counting.
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          description: |
+
+            The date when the Spend Limit should expire.
+          format: date
+          nullable: true
+        set_start_date_null:
+          type: boolean
+          description: |
+
+            Set the date when the Spend Limit should start counting to null.
+          nullable: true
+        set_end_date_null:
+          type: boolean
+          description: |
+
+            Set the date when the Spend Limit should expire to null.
+          nullable: true
+        authorization_settings:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/UpdateAuthorizationSettings'
+            - description: |
+
+                Spend authorization settings.
+        expense_visibility:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/ExpenseVisibility'
+            - description: >
+
+                Whether or not expense related to this Spend Limit should be
+                viewable to all members.
+        authorization_visibility:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/AuthorizationVisibility'
+            - description: >
+
+                Describes if the limit of the Spend Limit is visible to all
+                members, or just controllers, bookkeepers, and owners (direct or
+                ancestral).
+        merchant_category_controls:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/MerchantCategoryControls'
+            - description: |
+
+                The Spend Limit's merchant category controls.
+        transaction_limit:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Money'
+            - description: |
+
+                The transaction limit that this Spend Limit will enforce.
+        set_transaction_limit_null:
+          nullable: true
+          type: boolean
+          description: |2
+
+                Set the transaction limit that this Spend Limit will enforce to null.
+        limit_increase_setting:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/LimitIncreaseSetting'
+            - description: |
+
+                Whether or not members can request limit increases.
+        spend_type:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SpendType'
+            - description: >
+
+                Whether this Spend Limit only can be spent from by cards
+                provisioned by this Spend Limit. 
+        auto_transfer_cards_setting:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/AutoTransferCardsSetting'
+            - description: |
+
+                Setting for how auto transfer works for virtual cards.
+        auto_create_limit_cards_setting:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/AutoCreateLimitCardsSetting'
+            - description: |
+
+                Setting for how auto limit card creation works for members.
+        owner_user_ids:
+          type: array
+          description: |
+
+            User IDs of the owners of the Spend Limit.
+          nullable: true
+          items:
+            type: string
+        member_user_ids:
+          type: array
+          description: |
+
+            User IDs of the members of the Spend Limit.
+          nullable: true
+          items:
+            type: string
+        expense_policy_id:
+          type: string
+          description: |
+
+            The ID of the expense policy corresponding to this Spend Limit.
+          nullable: true
+        limit_increase_request_policy_id:
+          type: string
+          description: >
+
+            The ID of the policy for limit increase requests for this Spend
+            Limit.
+          nullable: true
+        limit_approval_policy_id:
+          type: string
+          description: >
+
+            The ID of the policy for limit increase approval requests. Meant to
+            replace limit_increase_request_policy_id.
+          nullable: true
+        legal_entity_id:
+          type: string
+          description: >
+
+            The legal entity ID to which Spend Limit expenses will be
+            attributed. If not set, expenses will be attributed to the spending
+            user's entity.
+          nullable: true
+        department_id:
+          type: string
+          description: |
+
+            The department ID to which Spend Limit expenses will be attributed.
+          nullable: true
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: OAuth2 security scheme
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts-api.brex.com/oauth2/default/v1/authorize
+          tokenUrl: https://accounts-api.brex.com/oauth2/default/v1/token
+          scopes:
+            openid: openid
+            offline_access: offline access
+            budgets: View and manage budgets data
+            budgets.readonly: View budgets data
+x-explorer-enabled: false

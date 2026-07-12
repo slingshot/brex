@@ -1,0 +1,1462 @@
+openapi: 3.0.0
+info:
+  title: Accounting API
+  description: >-
+    The Accounting API allows you to manage accounting data for connecting to
+    your accounting system. The Accounting API is currently in Alpha. To access
+    the Accounting Alpha API, please email developer-support@brex.com to express
+    your interest. Please note that participation is determined by Brex based on
+    program needs. For more details, please refer to
+    https://developer.brex.com/docs/api-launch-stages/.
+  contact:
+    name: Admin
+    url: https://brex.com
+    email: developer-support@brex.com
+  version: 1.0.0-alpha
+  x-logo:
+    altText: Brex Logo
+    url: https://www.brex.com/logo.png
+servers:
+  - url: https://api.brex.com
+    description: Production
+  - url: https://api-staging.brex.com
+    description: >-
+      Staging (Note: This is not a sandbox. It will not work with customer
+      tokens.)
+tags:
+  - name: Accounting Integrations
+    description: View and manage accounting integrations.
+  - name: Accounting Records
+    description: View and manage accounting records.
+paths:
+  /v3/accounting/integration:
+    post:
+      description: >-
+        Create a new accounting integration. The behavior depends on the
+        existing active integration:
+
+
+        - If no active integration exists: Creates and returns new integration
+
+        - If active integration exists with same vendor and vendor_account_id:
+        Returns the existing active integration
+
+        - If active integration exists with same vendor but different
+        vendor_account_id: Returns 409 error
+
+        - If active integration exists with different vendor: Returns 409 error
+
+
+        This ensures only one active integration exists per account.
+      operationId: createIntegration
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIntegrationRequest'
+      responses:
+        '200':
+          description: Integration created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integration'
+              examples:
+                created_integration:
+                  value:
+                    id: int_abc123
+                    vendor: ERP_A
+                    status: ACTIVE
+                    created_at: '2025-08-15T10:00:00Z'
+                    vendor_account_id: vendor_account_id
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                bad_request:
+                  value:
+                    error_code: INVALID_REQUEST
+                    message: The request is malformed or contains invalid data.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                unauthorized:
+                  value:
+                    error_code: UNAUTHORIZED
+                    message: Authentication credentials are missing or invalid.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                forbidden:
+                  value:
+                    error_code: FORBIDDEN
+                    message: You do not have permission to perform this action.
+        '409':
+          description: >-
+            Active integration exists with different vendor or different vendor
+            account ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                active_integration_exists:
+                  summary: Different vendor already exists
+                  value:
+                    error_code: ACTIVE_INTEGRATION_EXISTS
+                    message: >-
+                      Cannot create or recreate integration. An active
+                      integration with a different vendor already exists.
+                    details:
+                      existing_integration_id: int_xyz789
+                      existing_vendor: ERP_A
+                      requested_vendor: ERP_B
+                vendor_account_id_mismatch:
+                  summary: Same vendor but different vendor account ID
+                  value:
+                    error_code: VENDOR_ACCOUNT_ID_MISMATCH
+                    message: >-
+                      Cannot create integration. An active integration for this
+                      vendor already exists with a different vendor account ID.
+                    details:
+                      existing_integration_id: int_xyz789
+                      existing_vendor_account_id: vendor_account_abc
+                      requested_vendor_account_id: vendor_account_def
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                internal_error:
+                  value:
+                    error_code: INTERNAL_ERROR
+                    message: An unexpected error occurred. Please try again later.
+      security:
+        - oauth2:
+            - accounting.integration.write
+      summary: Create accounting integration
+      tags:
+        - Accounting Integrations
+  /v3/accounting/integration/{integration_id}/disconnect:
+    post:
+      description: |-
+        Disconnect an active accounting integration.
+
+        - If integration is ACTIVE: Disconnects and returns success
+        - If integration ID doesn't exist: Returns 404 error
+        - If integration is not currently active: Returns 409 error
+      operationId: disconnectIntegration
+      parameters:
+        - name: integration_id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Integration disconnected successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integration'
+              examples:
+                disconnected_integration:
+                  value:
+                    id: int_abc123
+                    vendor: ERP_A
+                    status: DISABLED
+                    created_at: '2025-08-15T10:00:00Z'
+                    vendor_account_id: vendor_account_id
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                unauthorized:
+                  value:
+                    error_code: UNAUTHORIZED
+                    message: Authentication credentials are missing or invalid.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                forbidden:
+                  value:
+                    error_code: FORBIDDEN
+                    message: You do not have permission to perform this action.
+        '404':
+          description: Integration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                not_found:
+                  value:
+                    error_code: NOT_FOUND
+                    message: Integration not found.
+        '409':
+          description: Integration is not active
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                already_disconnected:
+                  value:
+                    error_code: INTEGRATION_NOT_ACTIVE
+                    message: Cannot disconnect integration. Integration is not active.
+                    details:
+                      integration_id: int_abc123
+                      current_status: DISABLED
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                internal_error:
+                  value:
+                    error_code: INTERNAL_ERROR
+                    message: An unexpected error occurred. Please try again later.
+      security:
+        - oauth2:
+            - accounting.integration.write
+      summary: Disconnect accounting integration
+      tags:
+        - Accounting Integrations
+  /v3/accounting/integration/{integration_id}/reactivate:
+    post:
+      description: |-
+        Reactivate a disconnected accounting integration.
+
+        - If integration is DISABLED: Reactivates and returns success
+        - If integration ID doesn't exist: Returns 404 error
+        - If an active integration already exists: Returns 409 error
+      operationId: reactivateIntegration
+      parameters:
+        - name: integration_id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Integration reactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integration'
+              examples:
+                reactivated_integration:
+                  value:
+                    id: int_abc123
+                    vendor: ERP_A
+                    status: ACTIVE
+                    created_at: '2025-08-15T10:00:00Z'
+                    vendor_account_id: vendor_account_id
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                unauthorized:
+                  value:
+                    error_code: UNAUTHORIZED
+                    message: Authentication credentials are missing or invalid.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                forbidden:
+                  value:
+                    error_code: FORBIDDEN
+                    message: You do not have permission to perform this action.
+        '404':
+          description: Integration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                not_found:
+                  value:
+                    error_code: NOT_FOUND
+                    message: Integration not found.
+        '409':
+          description: Active integration already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                active_integration_exists:
+                  value:
+                    error_code: ACTIVE_INTEGRATION_EXISTS
+                    message: >-
+                      Cannot creat or recreate integration. An active
+                      integration with a different vendor already exists.
+                    details:
+                      existing_integration_id: int_xyz789
+                      existing_vendor: ERP_A
+                      requested_vendor: ERP_B
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                internal_error:
+                  value:
+                    error_code: INTERNAL_ERROR
+                    message: An unexpected error occurred. Please try again later.
+      security:
+        - oauth2:
+            - accounting.integration.write
+      summary: Reactivate accounting integration
+      tags:
+        - Accounting Integrations
+  /v3/accounting/records/{record_id}:
+    get:
+      description: Retrieve a single accounting record by its unique identifier
+      operationId: getAccountingRecord
+      parameters:
+        - name: record_id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: single_entry
+          required: false
+          in: query
+          description: >-
+            Toggles the response format between single-entry and double-entry
+            bookkeeping. Set to true to filter out offsetting ledger entries and
+            return only the core cash-flow or economic-impact line items.
+            Defaults to false.
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Accounting record retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingRecordDetailed'
+              examples:
+                accounting_record:
+                  value:
+                    id: accr_abc123
+                    amount:
+                      amount: 100.5
+                      currency: USD
+                    original_amount:
+                      amount: 100.5
+                      currency: USD
+                    type: CARD_EXPENSE_POST
+                    review_status: READY_FOR_EXPORT
+                    source_id: exp_xyz789
+                    source_type: CARD
+                    erp_posting_date: '2025-04-24T16:13:49.959513Z'
+                    updated_at: '2025-04-24T16:13:49.959513Z'
+                    version: 1
+                    receipts:
+                      - id: receipt_123
+                        download_uris:
+                          - https://example.com/receipt_123.pdf
+                    user:
+                      id: cuuser_1234
+                      first_name: John
+                      last_name: Doe
+                      email: john.doe@example.com
+                      role: EMPLOYEE
+                      status: ACTIVE
+                    vendor: null
+                    memo: Business lunch with client
+                    posted_at: '2025-04-24T16:13:49.959513Z'
+                    due_at: null
+                    invoice_number: null
+                    line_items:
+                      - id: arli_abc123
+                        type: DEBIT
+                        amount:
+                          amount: 100.5
+                          currency: USD
+                        original_amount:
+                          amount: 100.5
+                          currency: USD
+                        memo: Office supplies
+                        accounting_field_values:
+                          - brex_field_id: ef_123
+                            remote_field_id: '1'
+                            brex_field_value_id: efo_123
+                            remote_field_value_id: '123'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                bad_request:
+                  value:
+                    error_code: INVALID_REQUEST
+                    message: The request is malformed or contains invalid data.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                unauthorized:
+                  value:
+                    error_code: UNAUTHORIZED
+                    message: Authentication credentials are missing or invalid.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                forbidden:
+                  value:
+                    error_code: FORBIDDEN
+                    message: You do not have permission to perform this action.
+        '404':
+          description: Record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                not_found:
+                  value:
+                    error_code: NOT_FOUND
+                    message: The requested accounting record was not found.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                internal_error:
+                  value:
+                    error_code: INTERNAL_ERROR
+                    message: An unexpected error occurred. Please try again later.
+      security:
+        - oauth2:
+            - accounting.record.read
+            - accounting.record.write
+      summary: Get accounting record by ID
+      tags:
+        - Accounting Records
+  /v3/accounting/records:
+    get:
+      description: >-
+        Query accounting records by IDs or with filters for polling. When
+        building integrations with Brex accounting workflow, use filter-based
+        polling as a fallback mechanism. Suggested cadence is 1 hour.
+
+
+        **For card and reimbursement records:**
+
+        Use `review_status` to filter by accounting workflow stage (e.g.,
+        READY_FOR_EXPORT, EXPORTED).
+
+
+        **For bill records:**
+
+        Use `source_type=BILL` with `updated_at[gt]` to poll for updated bill
+        records.
+
+
+        **Filter Constraints:**
+
+        - `review_status` is only supported with CARD and REIMBURSEMENT source
+        types
+      operationId: queryAccountingRecords
+      parameters:
+        - name: ids
+          required: false
+          in: query
+          description: >-
+            Filter by accounting record IDs. ID size is limited to 500. Example:
+            `ids=accr_xxx&ids=accr_yyy`
+          schema:
+            type: array
+            items:
+              type: string
+        - name: review_status
+          required: false
+          in: query
+          description: >-
+            Filter by review status. Tracks a record's stage in the accounting
+            review lifecycle, which progresses in this order: `PREPARE` (the
+            record is being prepared and is not yet ready for review) → `REVIEW`
+            (the record is ready to be reviewed) → `READY_FOR_EXPORT` (the
+            record has been reviewed and is queued for export to your ERP) →
+            `EXPORTED` (the record has been exported).
+          schema:
+            type: string
+            enum:
+              - PREPARE
+              - REVIEW
+              - READY_FOR_EXPORT
+              - EXPORTED
+        - name: limit
+          required: false
+          in: query
+          description: >-
+            Maximum number of records to return. Defaults to 100. The maximum is
+            500; requests with a higher value are rejected with a 400 error.
+          schema:
+            default: 100
+            maximum: 500
+            type: number
+        - name: cursor
+          required: false
+          in: query
+          description: Cursor for pagination
+          schema:
+            type: string
+        - name: single_entry
+          required: false
+          in: query
+          description: >-
+            Toggles the response format between single-entry and double-entry
+            bookkeeping. Set to true to filter out offsetting ledger entries and
+            return only the core cash-flow or economic-impact line items.
+            Defaults to false.
+          schema:
+            type: boolean
+        - name: updated_at
+          required: false
+          in: query
+          description: >-
+            Filter by updated_at timestamp range in UTC. Accepts gt (greater
+            than), gte (greater than or equal), lt (less than), lte (less than
+            or equal). Example: `updated_at[gte]=2025-01-01`
+          schema:
+            $ref: '#/components/schemas/UpdatedAtFilter'
+        - name: source_type
+          required: false
+          in: query
+          description: >-
+            Filter by accounting record source type. This is a high-level filter
+            that maps to specific accounting record types. Example:
+            `source_type=BILL`
+          schema:
+            type: string
+            enum:
+              - CARD
+              - REIMBURSEMENT
+              - BILL
+      responses:
+        '200':
+          description: Query accounting records response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingRecordsResponse'
+              examples:
+                records_response:
+                  value:
+                    items:
+                      - id: accr_abc123
+                        amount:
+                          amount: 100.5
+                          currency: USD
+                        original_amount:
+                          amount: 100.5
+                          currency: USD
+                        type: CARD_EXPENSE_POST
+                        review_status: READY_FOR_EXPORT
+                        source_id: exp_xyz789
+                        source_type: CARD
+                        erp_posting_date: '2025-04-24T16:13:49.959513Z'
+                        updated_at: '2025-04-24T16:13:49.959513Z'
+                        version: 1
+                        receipts:
+                          - id: receipt_123
+                            download_uris:
+                              - https://example.com/receipt_123.pdf
+                        user:
+                          id: cuuser_1234
+                          first_name: John
+                          last_name: Doe
+                          email: john.doe@example.com
+                          role: EMPLOYEE
+                          status: ACTIVE
+                        vendor: null
+                        memo: Business lunch with client
+                        posted_at: '2025-04-24T16:13:49.959513Z'
+                        due_at: null
+                        invoice_number: null
+                        line_items:
+                          - id: arli_abc123
+                            type: DEBIT
+                            amount:
+                              amount: 100.5
+                              currency: USD
+                            original_amount:
+                              amount: 100.5
+                              currency: USD
+                            memo: Office supplies
+                            accounting_field_values:
+                              - brex_field_id: ef_123
+                                remote_field_id: '1'
+                                brex_field_value_id: efo_123
+                                remote_field_value_id: '123'
+                    next_cursor: null
+                    has_next_page: false
+                    total_count: 1
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                bad_request:
+                  value:
+                    error_code: INVALID_REQUEST
+                    message: The request is malformed or contains invalid data.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                unauthorized:
+                  value:
+                    error_code: UNAUTHORIZED
+                    message: Authentication credentials are missing or invalid.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                forbidden:
+                  value:
+                    error_code: FORBIDDEN
+                    message: You do not have permission to perform this action.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                internal_error:
+                  value:
+                    error_code: INTERNAL_ERROR
+                    message: An unexpected error occurred. Please try again later.
+      security:
+        - oauth2:
+            - accounting.record.read
+            - accounting.record.write
+      summary: Query accounting records
+      tags:
+        - Accounting Records
+  /v3/accounting/records/export-results:
+    post:
+      description: Report export success or failure for accounting records.
+      operationId: reportAccountingExportResults
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportExportResultsRequest'
+      responses:
+        '200':
+          description: Export results processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportResultsResponse'
+              examples:
+                export_results_processed:
+                  value:
+                    updated_accounting_record_ids:
+                      - accr_abc123
+                      - accr_def456
+        '404':
+          description: Not found - Given accounting record id is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                not_found_accounting_record_ids:
+                  summary: Given accounting record id is not found
+                  value:
+                    error_code: NOT_FOUND
+                    message: >-
+                      Accounting record source IDs not found: accr_ghi789,
+                      accr_jkl012
+                    details:
+                      not_found_export_entry_source_ids:
+                        - accr_ghi789
+                        - accr_jkl012
+        '422':
+          description: >-
+            Validation failed (duplicate accounting record ids or records not
+            READY_FOR_EXPORT)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                duplicate_record_ids:
+                  summary: Duplicate accounting record ids detected
+                  value:
+                    error_code: DUPLICATE_ACCOUNTING_RECORD_IDS
+                    message: >-
+                      Duplicate accounting record ids found across success and
+                      failure results.
+                    details:
+                      duplicate_accounting_record_ids:
+                        - accr_abc123
+                        - accr_def456
+                invalid_review_status:
+                  summary: Accounting record already exported or failed
+                  value:
+                    error_code: ACCOUNTING_RECORD_NOT_READY_FOR_EXPORT
+                    message: >-
+                      Only accounting records with review status
+                      READY_FOR_EXPORT can be updated via this endpoint.
+                    details:
+                      not_ready_for_export_accounting_record_ids:
+                        - accr_ghi789
+                        - accr_jkl012
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingErrorResponse'
+              examples:
+                internal_error:
+                  value:
+                    error_code: INTERNAL_ERROR
+                    message: An unexpected error occurred. Please try again later.
+      security:
+        - oauth2:
+            - accounting.record.write
+      summary: Report accounting export results
+      tags:
+        - Accounting Records
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts-api.staging.brexapps.com/oauth2/defaultv1/authorize
+          tokenUrl: https://accounts-api.staging.brexapps.com/oauth2/defaultv1/token
+          scopes:
+            accounting.integration.read: View accounting integration
+            accounting.integration.write: View and manage accounting integration
+            accounting.record.read: View accounting records
+            accounting.record.write: View and manage accounting records
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the user
+          example: VXNlcjpjdXVzZXJfMTIzNA==
+        first_name:
+          type: string
+          description: The user's first name
+          example: John
+        last_name:
+          type: string
+          description: The user's last name
+          example: Doe
+        email:
+          type: string
+          description: The user's email address
+          example: john.doe@example.com
+        role:
+          type: string
+          description: The user's role in the system
+          example: CARD_ADMIN
+          enum:
+            - ACCOUNT_ADMIN
+            - AP_CLERK
+            - BOOKKEEPER
+            - CARD_ADMIN
+            - EMPLOYEE
+            - EMPLOYEE_WITHOUT_CORP_CARDS
+            - EXPENSE_ADMIN
+            - SUPER_ADMIN
+            - USER_MANAGEMENT_ADMIN
+        status:
+          type: string
+          description: The user's status in the system
+          example: ACTIVE
+          enum:
+            - ACTIVE
+            - ARCHIVED
+            - DELETED
+            - DISABLED
+            - INACTIVE
+            - INVITED
+            - PENDING_ACTIVATION
+        manager_id:
+          type: string
+          description: The ID of the user's manager
+          example: VXNlcjpjdXVzZXJfMTIzNA==
+        department_id:
+          type: string
+          description: The ID of the user's department
+          example: VXNlcjpjdXVzZXJfMTIzNA==
+        department_name:
+          type: string
+          description: The user's department name
+          example: Engineering
+        location_id:
+          type: string
+          description: The ID of the user's location
+          example: VXNlcjpjdXVzZXJfMTIzNA==
+        location_name:
+          type: string
+          description: The user's location name
+          example: San Francisco
+        title_id:
+          type: string
+          description: The user's title ID
+          example: VGl0bGU6dGl0bGVfMTIzNA==
+        title_name:
+          type: string
+          description: The user's title display name
+          example: Software Engineer
+        manager_first_name:
+          type: string
+          description: The user's manager first name
+          example: Jane
+        manager_last_name:
+          type: string
+          description: The user's manager last name
+          example: Smith
+        manager_title_id:
+          type: string
+          description: The user's manager title ID
+          example: VGl0bGU6dGl0bGVfMTIzNA==
+        manager_title_name:
+          type: string
+          description: The user's manager title display name
+          example: Engineering Manager
+      required:
+        - id
+        - first_name
+        - last_name
+        - email
+        - role
+        - status
+    Amount:
+      type: object
+      properties:
+        amount:
+          type: number
+          description: The amount
+          example: 100
+        currency:
+          type: string
+          description: The currency
+          example: USD
+      required:
+        - amount
+        - currency
+    Integration:
+      type: object
+      properties:
+        integration_id:
+          type: string
+          description: Unique identifier for the integration
+          example: int_abc123
+        vendor:
+          type: string
+          description: >-
+            The accounting vendor/system. ERP partners must request Brex to
+            create a vendor ID for them to use this field.
+        vendor_account_id:
+          type: string
+          description: The vendor account ID this integration is tied to
+          example: customer_account_id
+        status:
+          type: string
+          description: Current status of the integration
+          example: ACTIVE
+          enum:
+            - ACTIVE
+            - DISABLED
+        created_at:
+          type: string
+          description: Timestamp when the integration was created
+          example: '2025-08-15T10:00:00Z'
+          format: date-time
+      required:
+        - integration_id
+        - vendor
+        - vendor_account_id
+        - status
+        - created_at
+    AccountingErrorDetails:
+      type: object
+      properties:
+        existing_integration_id:
+          type: string
+          description: ID of the existing active integration
+          example: int_abc123
+        existing_vendor:
+          type: string
+          description: Vendor of the existing integration
+          example: ERP_A
+        requested_vendor:
+          type: string
+          description: Vendor that was requested to be created
+          example: ERP_B
+        integration_id:
+          type: string
+          description: Integration ID associated with the error
+          example: int_abc123
+        current_status:
+          type: string
+          description: Current status of the integration when the error occurred
+          example: DISABLED
+        duplicate_accounting_record_ids:
+          description: Accounting record IDs that triggered the error
+          example:
+            - accr_abc123
+            - accr_def456
+          type: array
+          items:
+            type: string
+        not_ready_for_export_accounting_record_ids:
+          description: Accounting record IDs that are not ready for export
+          example:
+            - accr_ghi789
+          type: array
+          items:
+            type: string
+        not_found_export_entry_source_ids:
+          description: Accounting record IDs that could not be found
+          example:
+            - accr_ghi789
+          type: array
+          items:
+            type: string
+    AccountingErrorResponse:
+      type: object
+      properties:
+        error_code:
+          type: string
+          description: Machine-readable error code
+          enum:
+            - ACTIVE_INTEGRATION_EXISTS
+            - FORBIDDEN
+            - INTEGRATION_NOT_ACTIVE
+            - INTERNAL_ERROR
+            - INVALID_REQUEST
+            - NOT_FOUND
+            - UNAUTHORIZED
+            - DUPLICATE_ACCOUNTING_RECORD_IDS
+            - ACCOUNTING_RECORD_NOT_READY_FOR_EXPORT
+            - VENDOR_ACCOUNT_ID_MISMATCH
+          example: INVALID_REQUEST
+        message:
+          type: string
+          description: Human-readable error message
+          example: The request is malformed or contains invalid data.
+        details:
+          description: Additional error context
+          nullable: true
+          additionalProperties: true
+          allOf:
+            - $ref: '#/components/schemas/AccountingErrorDetails'
+      required:
+        - error_code
+        - message
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the vendor
+          example: vendor_123
+        name:
+          type: string
+          description: The name of the vendor
+          example: Acme Corp
+        contact_name:
+          type: string
+          description: The name of the contact for the vendor
+          example: Jane Smith
+          nullable: true
+        email:
+          type: string
+          description: The email for the vendor
+          example: contact@acme.com
+          nullable: true
+        website:
+          type: string
+          description: The website of the vendor
+          example: https://acme.com
+          nullable: true
+        phone:
+          type: string
+          description: The phone number for the vendor
+          example: +1-555-123-4567
+          nullable: true
+      required:
+        - id
+        - name
+    AccountingFieldValue:
+      type: object
+      properties:
+        brex_field_id:
+          type: string
+          description: Brex internal field identifier
+          example: ef_123
+        remote_field_id:
+          type: string
+          description: Remote system field identifier
+          example: '1'
+          nullable: true
+        brex_field_value_id:
+          type: string
+          description: Brex internal field value identifier
+          example: efo_123
+        remote_field_value_id:
+          type: string
+          description: Remote system field value identifier
+          example: '123'
+          nullable: true
+      required:
+        - brex_field_id
+        - remote_field_id
+        - brex_field_value_id
+        - remote_field_value_id
+    AccountingRecordLineItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the line item
+          example: arli_abc123
+        type:
+          type: string
+          description: Type of line item
+          enum:
+            - CREDIT
+            - DEBIT
+        amount:
+          description: >-
+            Amount for this line item. Amount is always positive for
+            `AccountingRecordLineItem`.
+          allOf:
+            - $ref: '#/components/schemas/Amount'
+        original_amount:
+          description: >-
+            Original amount for this line item. Amount is always positive for
+            `AccountingRecordLineItem`.
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Amount'
+        memo:
+          type: string
+          description: Memo/description
+          nullable: true
+        accounting_field_values:
+          description: Accounting field mappings
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountingFieldValue'
+      required:
+        - id
+        - type
+        - amount
+        - accounting_field_values
+    AccountingRecordDetailed:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the accounting record
+          example: accr_abc123
+        amount:
+          description: Amount of the accounting record
+          allOf:
+            - $ref: '#/components/schemas/Amount'
+        original_amount:
+          description: Original amount if different from current
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Amount'
+        type:
+          type: string
+          description: >-
+            Types of accounting records representing different financial
+            transactions:
+
+
+            **Card-related transactions:**
+
+
+            - `CARD_EXPENSE_POST`: Records when a card expense is posted and
+            settled
+
+
+            - `CARD_EXPENSE_REFUND`: Records when a merchant issues a refund for
+            a card transaction
+
+
+            - `CARD_EXPENSE_REPAYMENT`: Records when an employee repays money to
+            the company for a card expense
+
+
+            - `CARD_PAYMENT`: Records payments from customer to Brex for card
+            balances
+
+
+            - `CARD_PAYMENT_REFUND`: Records refunds from Brex to customer for
+            overpayments
+
+
+            - `REWARD_REDEMPTION`: Records when a reward is redeemed
+
+
+            **Bill-related transactions:**
+
+
+            - `BILL_EXPENSE`: Records when a bill expense is created
+
+
+            - `BILL_EXPENSE_PAYMENT`: Records when a bill is paid through
+            ACH/wire transfer
+
+
+            - `BILL_EXPENSE_CARD_PAYMENT`: Records when a bill is paid using a
+            Brex card
+
+
+            **Reimbursement-related transactions:**
+
+
+            - `REIMBURSEMENT_EXPENSE_APPROVAL`: Records approval of
+            reimbursement (accrual basis)
+
+
+            - `REIMBURSEMENT_EXPENSE_POST`: Records when reimbursement is
+            fulfilled (cash basis)
+
+
+            - `REIMBURSEMENT_EXPENSE_REPAYMENT`: Records repayment of a
+            reimbursement expense
+
+
+            - `REIMBURSEMENT_EXPENSE_MONEY_MOVEMENT_PAYOUT`: Records payout to
+            employee/third party
+
+
+            - `REIMBURSEMENT_EXPENSE_MONEY_MOVEMENT_PAYOUT_REVERSAL`: Records
+            reversal of payout
+
+
+            - `REIMBURSEMENT_EXPENSE_MONEY_MOVEMENT_PAYIN`: Records payment from
+            customer to Brex
+
+
+            - `REIMBURSEMENT_EXPENSE_MONEY_MOVEMENT_REFUND`: Records refund to
+            customer's bank
+          enum:
+            - CARD_EXPENSE_POST
+            - CARD_EXPENSE_REPAYMENT
+            - REIMBURSEMENT_EXPENSE_REPAYMENT
+            - REIMBURSEMENT_EXPENSE_APPROVAL
+            - REIMBURSEMENT_EXPENSE_MONEY_MOVEMENT_PAYOUT
+            - REIMBURSEMENT_EXPENSE_MONEY_MOVEMENT_PAYIN
+            - REIMBURSEMENT_EXPENSE_POST
+            - CARD_PAYMENT
+            - REWARD_REDEMPTION
+            - REIMBURSEMENT_EXPENSE_MONEY_MOVEMENT_REFUND
+            - CARD_EXPENSE_REFUND
+            - CARD_PAYMENT_REFUND
+            - REIMBURSEMENT_EXPENSE_MONEY_MOVEMENT_PAYOUT_REVERSAL
+            - INVOICE
+            - INVOICE_PAYMENT
+            - BILL_EXPENSE
+            - BILL_EXPENSE_PAYMENT
+            - BILL_EXPENSE_CARD_PAYMENT
+            - BILL_MONEY_MOVEMENT_PAYIN
+        review_status:
+          type: string
+          description: >-
+            Current review status of the record in the accounting review
+            lifecycle: `PREPARE` → `REVIEW` → `READY_FOR_EXPORT` → `EXPORTED`.
+          enum:
+            - PREPARE
+            - REVIEW
+            - READY_FOR_EXPORT
+            - EXPORTED
+        source_id:
+          type: string
+          description: Source transaction ID
+          nullable: true
+        source_type:
+          type: string
+          description: Source type
+          enum:
+            - CARD
+            - REIMBURSEMENT
+            - BILL
+        erp_posting_date:
+          type: string
+          description: ERP impact date in UTC timezone
+          format: date-time
+        updated_at:
+          type: string
+          description: Last update timestamp in UTC timezone
+          format: date-time
+        version:
+          type: number
+          description: Version number
+        receipts:
+          type: array
+          description: Associated receipts
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Receipt'
+        user:
+          description: User associated with the record
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/User'
+        vendor:
+          description: Vendor information
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Vendor'
+        memo:
+          type: string
+          description: Memo/description
+          nullable: true
+        posted_at:
+          type: string
+          description: Source posted date in UTC timezone
+          format: date-time
+        due_at:
+          type: string
+          description: Source due at in UTC timezone. For bills only
+          nullable: true
+          format: date-time
+        invoice_number:
+          type: string
+          description: Invoice number. For bills only
+          nullable: true
+        line_items:
+          description: Line items for double-entry bookkeeping
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountingRecordLineItem'
+      required:
+        - id
+        - amount
+        - type
+        - review_status
+        - source_type
+        - erp_posting_date
+        - updated_at
+        - version
+        - posted_at
+        - line_items
+    AccountingRecordsResponse:
+      type: object
+      properties:
+        items:
+          description: List of accounting records
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountingRecordDetailed'
+        total_count:
+          type: number
+          description: Total count of records matching the query
+          nullable: true
+          format: int32
+        next_cursor:
+          type: string
+          description: Cursor for the next page of results
+          nullable: true
+        has_next_page:
+          type: boolean
+          description: Whether there are more results available
+      required:
+        - items
+        - has_next_page
+    Receipt:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the receipt
+        download_uris:
+          type: array
+          description: Presigned S3 URLs to download receipt files (expire in 15 minutes)
+          nullable: true
+          items:
+            type: string
+      required:
+        - id
+    ExportResultsResponse:
+      type: object
+      properties:
+        updated_accounting_record_ids:
+          description: Accounting record ids that were updated by the request
+          example:
+            - accr_abc123
+            - accr_def456
+          type: array
+          items:
+            type: string
+      required:
+        - updated_accounting_record_ids
+    ReportExportResultsRequest:
+      type: object
+      properties:
+        results:
+          type: array
+          description: Array of export results (must contain at least one result)
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/SuccessfulExportResult'
+              - $ref: '#/components/schemas/FailedExportResult'
+          minItems: 1
+      required:
+        - results
+    ExportSuccessDetails:
+      type: object
+      properties:
+        reference_id:
+          type: string
+          description: External system identifier assigned to the exported record
+          example: erp_txn_456789
+          nullable: true
+        deep_link_url:
+          type: string
+          description: URL pointing to the record in the external system
+          example: https://erp.com/transactions/456789
+          nullable: false
+    SuccessfulExportResult:
+      type: object
+      properties:
+        accounting_record_id:
+          type: string
+          description: ID of the accounting record the export outcome applies to
+          example: accr_abc123
+        success:
+          description: Details for a successful export
+          allOf:
+            - $ref: '#/components/schemas/ExportSuccessDetails'
+      required:
+        - accounting_record_id
+        - success
+    ExportFailureDetails:
+      type: object
+      properties:
+        error_message:
+          type: string
+          description: Human-readable explanation of the failure
+          example: Invalid GL account
+      required:
+        - error_message
+    FailedExportResult:
+      type: object
+      properties:
+        accounting_record_id:
+          type: string
+          description: ID of the accounting record the export outcome applies to
+          example: accr_abc123
+        failure:
+          description: Details for a failed export
+          allOf:
+            - $ref: '#/components/schemas/ExportFailureDetails'
+      required:
+        - accounting_record_id
+        - failure
+    CreateIntegrationRequest:
+      type: object
+      properties:
+        vendor:
+          type: string
+          description: >-
+            The accounting vendor/system. ERP partners must request Brex to
+            create a vendor ID for them to use this field.
+          example: ERP_A
+        vendor_account_id:
+          type: string
+          description: The vendor account ID to tie this integration to
+          example: vendor_account_id
+      required:
+        - vendor
+        - vendor_account_id
+    UpdatedAtFilter:
+      type: object
+      properties:
+        gt:
+          type: string
+          description: Minimum value to filter by (exclusive) - ISO 8601 format
+          example: '2025-01-01T00:00:00Z'
+          format: date-time
+        gte:
+          type: string
+          description: Minimum value to filter by (inclusive) - ISO 8601 format
+          example: '2025-01-01T00:00:00Z'
+          format: date-time
+        lt:
+          type: string
+          description: Maximum value to filter by (exclusive) - ISO 8601 format
+          example: '2025-01-01T00:00:00Z'
+          format: date-time
+        lte:
+          type: string
+          description: Maximum value to filter by (inclusive) - ISO 8601 format
+          example: '2025-01-01T23:59:59.999Z'
+          format: date-time
