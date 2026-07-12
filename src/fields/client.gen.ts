@@ -10,6 +10,9 @@ export class Fields {
 
     /**
      * Create a custom field
+     *
+     * Create a custom field
+     *
      * `POST /v1/fields` — requires OAuth scope: `fields.write`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -26,6 +29,9 @@ export class Fields {
 
     /**
      * Delete a custom field
+     *
+     * Delete a custom field by Brex ID
+     *
      * `DELETE /v1/fields/{id}` — requires OAuth scope: `fields.write`
      */
     delete(
@@ -39,6 +45,9 @@ export class Fields {
 
     /**
      * Get custom field
+     *
+     * Get a custom field by Brex ID
+     *
      * `GET /v1/fields/{id}` — requires OAuth scope: `fields.read`, `fields.write`
      */
     get(
@@ -52,6 +61,9 @@ export class Fields {
 
     /**
      * List custom fields
+     *
+     * List custom fields under the same account
+     *
      * `GET /v1/fields` — requires OAuth scope: `fields.read`, `fields.write`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -66,6 +78,9 @@ export class Fields {
 
     /**
      * Update a custom field
+     *
+     * Update a field by ID
+     *
      * `PUT /v1/fields/{id}` — requires OAuth scope: `fields.write`
      */
     update(
@@ -86,6 +101,9 @@ export class FieldValues {
 
     /**
      * Create custom field values
+     *
+     * Create custom field values (up to 1000 values at once) for a specific field
+     *
      * `POST /v1/fields/{field_id}/values` — requires OAuth scope: `field_values.write`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -109,6 +127,9 @@ export class FieldValues {
 
     /**
      * Delete custom field values
+     *
+     * Delete custom field values (up to 1000 values at once) for a specific field
+     *
      * `DELETE /v1/fields/{field_id}/values` — requires OAuth scope: `fields.write`
      */
     delete(
@@ -127,6 +148,9 @@ export class FieldValues {
 
     /**
      * Get a field value
+     *
+     * Get a field value by field ID and field value ID
+     *
      * `GET /v1/fields/{field_id}/values/{brex_id}` — requires OAuth scope: `field_values.read`, `field_values.write`
      */
     get(
@@ -145,6 +169,9 @@ export class FieldValues {
 
     /**
      * List custom field values
+     *
+     * List values under the same custom field
+     *
      * `GET /v1/fields/{field_id}/values` — requires OAuth scope: `field_values.read`, `field_values.write`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -162,6 +189,9 @@ export class FieldValues {
 
     /**
      * Update custom field values
+     *
+     * Update custom field values (up to 1000 values at once) for a specific field
+     *
      * `PUT /v1/fields/{field_id}/values` — requires OAuth scope: `field_values.write`
      */
     update(

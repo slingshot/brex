@@ -15,7 +15,7 @@
   "license": "MIT",
   "author": "Sanil Chawla",
   "repository": "github:slingshot/brex",
-  "homepage": "https://github.com/slingshot/brex#readme",
+  "homepage": "https://slingshot.github.io/brex",
   "bugs": "https://github.com/slingshot/brex/issues",
   "type": "module",
   "sideEffects": false,

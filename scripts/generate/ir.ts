@@ -67,6 +67,8 @@ export interface OperationIR {
     operationId: string;
     tag: string;
     summary: string | undefined;
+    /** Full operation description (multi-line markdown), preserved for docs. */
+    description: string | undefined;
     deprecated: boolean;
     scopes: string[];
     /** Path parameter names, in the order they appear in the URL template. */
@@ -92,6 +94,22 @@ export function resolveRef(doc: SpecDocument, schema: SchemaObject | undefined):
         return doc.components?.schemas?.[name] ?? {};
     }
     return schema;
+}
+
+/**
+ * Normalize multi-line doc text: LF newlines, trimmed line ends, blank runs
+ * collapsed to one. Kept deterministic so regeneration is byte-stable.
+ */
+function normalizeDoc(text: string | undefined): string | undefined {
+    if (!text) return undefined;
+    const normalized = text
+        .replace(/\r\n?/g, '\n')
+        .split('\n')
+        .map((line) => line.trimEnd())
+        .join('\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    return normalized || undefined;
 }
 
 function isPaginated(doc: SpecDocument, op: OperationObject, queryParamNames: string[]): boolean {
@@ -197,6 +215,7 @@ export function extractOperations(specId: string, doc: SpecDocument): OperationI
                 operationId,
                 tag,
                 summary: op.summary?.trim().replace(/\s+/g, ' '),
+                description: normalizeDoc(op.description),
                 deprecated: op.deprecated ?? false,
                 scopes,
                 pathParams: templateParams,

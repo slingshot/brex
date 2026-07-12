@@ -10,6 +10,9 @@ export class CardExpenses {
 
     /**
      * Get a card expense
+     *
+     * This endpoint is deprecated. Use the "Get an expense" (`GET /v1/expenses/{id}`) endpoint instead.
+     *
      * `GET /v1/expenses/card/{expense_id}` — requires OAuth scope: `expenses.card.readonly`, `expenses.card`
      * @deprecated Marked deprecated in the Brex OpenAPI spec.
      */
@@ -27,6 +30,9 @@ export class CardExpenses {
 
     /**
      * List card expenses
+     *
+     * This endpoint is deprecated. Use the "List expenses" (`GET /v1/expenses`) endpoint instead.
+     *
      * `GET /v1/expenses/card` — requires OAuth scope: `expenses.card.readonly`, `expenses.card`
      * Await for a single page, or `for await` to iterate items across all pages.
      * @deprecated Marked deprecated in the Brex OpenAPI spec.
@@ -44,6 +50,9 @@ export class CardExpenses {
 
     /**
      * Update an expense
+     *
+     * Update an expense. Admin and bookkeeper have access to any expense, and regular users can only access their own.
+     *
      * `PUT /v1/expenses/card/{expense_id}` — requires OAuth scope: `expenses.card`
      */
     update(
@@ -66,6 +75,9 @@ export class Expenses {
 
     /**
      * Get an expense
+     *
+     * Get an expense by its ID.
+     *
      * `GET /v1/expenses/{id}` — requires OAuth scope: `expenses.card.readonly`, `expenses.card`
      */
     get(
@@ -82,6 +94,9 @@ export class Expenses {
 
     /**
      * List expenses
+     *
+     * List expenses under the same account. Admin and bookkeeper have access to any expense, and regular users can only access their own.
+     *
      * `GET /v1/expenses` — requires OAuth scope: `expenses.card.readonly`, `expenses.card`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -102,6 +117,11 @@ export class Receipts {
 
     /**
      * Create a new receipt match
+     *
+     * The `uri` will be a pre-signed S3 URL allowing you to upload the receipt securely. This URL can only be used for a `PUT` operation and expires 30 minutes after its creation. Once your upload is complete, we will try to match the receipt with existing expenses.
+     *
+     * Refer to these [docs](https://docs.aws.amazon.com/AmazonS3/latest/dev/PresignedUrlUploadObject.html) on how to upload to this pre-signed S3 URL. We highly recommend using one of AWS SDKs if they're available for your language to upload these files.
+     *
      * `POST /v1/expenses/card/receipt_match`
      */
     match(
@@ -119,6 +139,11 @@ export class Receipts {
 
     /**
      * Create a new receipt upload
+     *
+     * The `uri` will be a pre-signed S3 URL allowing you to upload the receipt securely. This URL can only be used for a `PUT` operation and expires 30 minutes after its creation. Once your upload is complete, we will try to match the receipt with existing expenses.
+     *
+     * Refer to these [docs](https://docs.aws.amazon.com/AmazonS3/latest/dev/PresignedUrlUploadObject.html) on how to upload to this pre-signed S3 URL. We highly recommend using one of AWS SDKs if they're available for your language to upload these files.
+     *
      * `POST /v1/expenses/card/{expense_id}/receipt_upload`
      */
     upload(

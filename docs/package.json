@@ -1,0 +1,28 @@
+{
+  "name": "brex-docs",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Documentation site for the brex SDK — published to https://slingshot.github.io/brex",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.41.3",
+    "astro": "7.0.7",
+    "sharp": "0.34.5",
+    "starlight-dot-md": "0.2.1",
+    "starlight-llms-txt": "0.11.0",
+    "starlight-page-actions": "0.6.2",
+    "starlight-typedoc": "0.23.0",
+    "typedoc": "0.28.20",
+    "typedoc-plugin-markdown": "4.12.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

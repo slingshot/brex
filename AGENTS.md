@@ -40,6 +40,9 @@ src/<api>/              generated per spec: types.gen, schemas.gen, client.gen, 
 src/index.ts            generated root: Brex class composing all namespaces
 tests/                  naming table tests, fixture snapshots, mocked-fetch integration,
                         compile-only type assertions (tests/types/*.test-d.ts)
+docs/                   self-contained Astro Starlight docs site (own package.json +
+                        lockfile); guides in src/content/docs, API reference generated
+                        from ../src by starlight-typedoc — see "Documentation site"
 ```
 
 ## Naming algorithm (summary)
@@ -65,6 +68,15 @@ bun run generate     # may fail demanding new overrides — add them
 bun test && bun run typecheck
 bunx changeset       # describe the API surface change
 ```
+
+## Documentation site
+
+`docs/` is a **self-contained** Astro Starlight site (its own `package.json` + `bun.lock`, isolated from the library's frozen-lockfile install) published to `https://slingshot.github.io/brex` by `.github/workflows/docs.yml` (build → `actions/deploy-pages`, no `gh-pages` branch).
+
+- **Guides** are hand-written MDX/MD in `docs/src/content/docs/` (audited by docs-sentinel).
+- **API reference** is generated at build time by `starlight-typedoc`, which runs TypeDoc against `../src` via `../tsconfig.lib.json`. It reads the JSDoc that `bun run generate` emits into each `*.gen.ts` — so richer method docs come from `scripts/generate/emit-client.ts`'s `jsdoc()`, **not** from editing the site. The output lands in the gitignored `docs/src/content/docs/api/` and is rebuilt every time.
+- Work on it from the sub-project: `cd docs && bun install && bun run dev` (serves at `localhost:4321/brex`). Internal links in guides use the `/brex` base path so they resolve in HTML, raw `.md`, and `llms-full.txt`.
+- `bun run lint` (root Biome) ignores `docs/` via `files.includes` — the docs site has its own toolchain.
 
 ## Style
 

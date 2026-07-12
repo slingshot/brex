@@ -10,6 +10,9 @@ export class LinkedAccounts {
 
     /**
      * Lists linked accounts
+     *
+     * This endpoint lists all bank connections that are eligible to make ACH transfers to Brex business account
+     *
      * `GET /v1/linked_accounts` — requires OAuth scope: `linked_accounts.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -30,6 +33,28 @@ export class Transfers {
 
     /**
      * Create transfer
+     *
+     * This endpoint creates a new transfer.
+     *
+     * Currently, the API can only create transfers for the following payment rails:
+     * - ACH
+     * - DOMESTIC_WIRE
+     * - CHEQUE
+     * - INTERNATIONAL_WIRES
+     *
+     * **Transaction Descriptions**
+     * * For outgoing check payments, a successful transfer will return a response containing a description value with a format of `Check #<check number> to <recipient_name> - <external_memo>`.
+     * * For book transfers (from one Brex Business account to another), the recipient value will have a format of `<customer_account.dba_name> - <external_memo>` and the sender will have a format of `<target customer account's dba name> - <external_memo>`.
+     * * For other payment rails, the format will be `<counterparty_name> - <external_memo>`, where Counterparty name is `payment_instrument.beneficiary_name` or `contact.name`
+     * For vendors created from the Payments API, the `counterparty_name` will be the `company_name` [field](/openapi/payments_api/#operation/createVendor!path=company_name&t=request).
+     *
+     * **Reminder**: You may not use the Brex API for any activity that requires a license or registration from any
+     * governmental authority without Brex's prior review and approval. This includes but is not limited to any money services
+     * business or money transmission activity.
+     *
+     * Please review the <a href="https://www.brex.com/legal/developer-portal/">Brex Access Agreement</a> and contact us if
+     * you have any questions.
+     *
      * `POST /v1/transfers` — requires OAuth scope: `transfers`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -46,6 +71,17 @@ export class Transfers {
 
     /**
      * Create incoming transfer
+     *
+     * This endpoint creates a new incoming transfer. You may use use any eligible bank account connection to fund (ACH Debit)
+     * any active Brex business account.
+     *
+     * **Reminder**: You may not use the Brex API for any activity that requires a license or registration from any
+     * governmental authority without Brex's prior review and approval. This includes but is not limited to any money services
+     * business or money transmission activity.
+     *
+     * Please review the <a href="https://www.brex.com/legal/developer-portal/">Brex Access Agreement</a> and contact us if
+     * you have any questions.
+     *
      * `POST /v1/incoming_transfers` — requires OAuth scope: `incoming_transfers`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -64,6 +100,15 @@ export class Transfers {
 
     /**
      * Get transfer
+     *
+     * This endpoint gets a transfer by ID.
+     *
+     * Currently, the API can only return transfers for the following payment rails:
+     * - ACH
+     * - DOMESTIC_WIRE
+     * - CHEQUE
+     * - INTERNATIONAL_WIRE
+     *
      * `GET /v1/transfers/{id}` — requires OAuth scope: `transfers.readonly`, `incoming_transfers`
      */
     get(
@@ -79,6 +124,15 @@ export class Transfers {
 
     /**
      * Lists transfers
+     *
+     * This endpoint lists existing transfers for an account.
+     *
+     * Currently, the API can only return transfers for the following payment rails:
+     * - ACH
+     * - DOMESTIC_WIRE
+     * - CHEQUE
+     * - INTERNATIONAL_WIRE
+     *
      * `GET /v1/transfers` — requires OAuth scope: `transfers.readonly`, `incoming_transfers`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -99,6 +153,9 @@ export class Vendors {
 
     /**
      * Create vendor
+     *
+     * This endpoint creates a new vendor.
+     *
      * `POST /v1/vendors` — requires OAuth scope: `vendors`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -115,6 +172,9 @@ export class Vendors {
 
     /**
      * Delete vendor.
+     *
+     * This endpoint deletes a vendor by ID.
+     *
      * `DELETE /v1/vendors/{id}` — requires OAuth scope: `vendors`
      */
     delete(
@@ -128,6 +188,9 @@ export class Vendors {
 
     /**
      * Get vendor
+     *
+     * This endpoint gets a vendor by ID.
+     *
      * `GET /v1/vendors/{id}` — requires OAuth scope: `vendors.readonly`
      */
     get(
@@ -143,6 +206,10 @@ export class Vendors {
 
     /**
      * Lists vendors
+     *
+     * This endpoint lists all existing vendors for an account.
+     * Takes an optional parameter to match by vendor name.
+     *
      * `GET /v1/vendors` — requires OAuth scope: `vendors.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -157,6 +224,9 @@ export class Vendors {
 
     /**
      * Update vendor
+     *
+     * Updates an existing vendor by ID.
+     *
      * `PUT /v1/vendors/{id}` — requires OAuth scope: `vendors`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */

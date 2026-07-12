@@ -44,6 +44,12 @@ export function buildSpecModel(specId: string, named: NamedOperation[]): SpecMod
 function jsdoc(op: NamedOperation): string {
     const lines: string[] = [];
     if (op.summary) lines.push(op.summary);
+    if (op.description) {
+        if (lines.length) lines.push('');
+        // Escape `*/` so an upstream description can never terminate the block comment.
+        for (const line of op.description.split('\n')) lines.push(line.replace(/\*\//g, '*\\/'));
+        lines.push('');
+    }
     const scopes = op.scopes.length
         ? ` — requires OAuth scope: ${op.scopes.map((s) => `\`${s}\``).join(', ')}`
         : '';
@@ -59,7 +65,7 @@ function jsdoc(op: NamedOperation): string {
         lines.push('Supports an optional `Idempotency-Key` via `options.idempotencyKey`.');
     }
     if (op.deprecated) lines.push('@deprecated Marked deprecated in the Brex OpenAPI spec.');
-    return ['/**', ...lines.map((l) => ` * ${l}`), ' */'].join('\n  ');
+    return ['/**', ...lines.map((l) => (l ? ` * ${l}` : ' *')), ' */'].join('\n  ');
 }
 
 function emitMethod(op: NamedOperation): string {

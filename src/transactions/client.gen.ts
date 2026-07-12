@@ -10,6 +10,9 @@ export class Accounts {
 
     /**
      * Get cash account by ID
+     *
+     * This endpoint returns the cash account associated with the provided ID with its status.
+     *
      * `GET /v2/accounts/cash/{id}` — requires OAuth scope: `accounts.cash.readonly`
      */
     get(
@@ -25,6 +28,9 @@ export class Accounts {
 
     /**
      * Get primary cash account
+     *
+     * This endpoint returns the primary cash account with its status. There will always be only one primary account.
+     *
      * `GET /v2/accounts/cash/primary` — requires OAuth scope: `accounts.cash.readonly`
      */
     getPrimary(
@@ -39,6 +45,9 @@ export class Accounts {
 
     /**
      * List cash accounts
+     *
+     * This endpoint lists all the existing cash accounts with their status.
+     *
      * `GET /v2/accounts/cash` — requires OAuth scope: `accounts.cash.readonly`
      */
     list(
@@ -53,6 +62,9 @@ export class Accounts {
 
     /**
      * List card accounts
+     *
+     * This endpoint lists all accounts of card type.
+     *
      * `GET /v2/accounts/card` — requires OAuth scope: `accounts.card.readonly`
      */
     listCard(
@@ -67,6 +79,9 @@ export class Accounts {
 
     /**
      * List cash account statements.
+     *
+     * This endpoint lists all finalized statements for the cash account by ID.
+     *
      * `GET /v2/accounts/cash/{id}/statements` — requires OAuth scope: `statements.cash.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -84,6 +99,9 @@ export class Accounts {
 
     /**
      * List primary card account statements.
+     *
+     * This endpoint lists all finalized statements for the primary card account.
+     *
      * `GET /v2/accounts/card/primary/statements` — requires OAuth scope: `statements.card.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -104,6 +122,9 @@ export class Transactions {
 
     /**
      * List transactions for the selected cash account.
+     *
+     * This endpoint lists all transactions for the cash account with the selected ID.
+     *
      * `GET /v2/transactions/cash/{id}` — requires OAuth scope: `transactions.cash.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -121,6 +142,10 @@ export class Transactions {
 
     /**
      * List transactions for all card accounts.
+     *
+     * This endpoint lists all settled transactions for all card accounts.
+     * Regular users may only fetch their own "PURCHASE","REFUND" and "CHARGEBACK" settled transactions.
+     *
      * `GET /v2/transactions/card/primary` — requires OAuth scope: `transactions.card.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */

@@ -10,6 +10,9 @@ export class WebhookGroups {
 
     /**
      * Add Webhook Group Members
+     *
+     * Adds members to webhook groups.
+     *
      * `POST /v1/webhooks/groups/{id}/add_members`
      */
     addMembers(
@@ -28,6 +31,9 @@ export class WebhookGroups {
 
     /**
      * Create Webhook Group
+     *
+     * Creates a webhook group.
+     *
      * `POST /v1/webhooks/groups`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -46,6 +52,9 @@ export class WebhookGroups {
 
     /**
      * Delete Webhook Group
+     *
+     * Deletes a webhook group and all its members.
+     *
      * `DELETE /v1/webhooks/groups/{id}`
      */
     delete(
@@ -59,6 +68,9 @@ export class WebhookGroups {
 
     /**
      * Get Webhook Group
+     *
+     * Gets a webhook group.
+     *
      * `GET /v1/webhooks/groups/{id}`
      */
     get(
@@ -74,6 +86,9 @@ export class WebhookGroups {
 
     /**
      * List Webhook Groups
+     *
+     * Lists webhook groups.
+     *
      * `GET /v1/webhooks/groups`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -90,6 +105,9 @@ export class WebhookGroups {
 
     /**
      * List Webhook Group Members
+     *
+     * Lists the members currently in the specified webhook group.
+     *
      * `GET /v1/webhooks/groups/{id}/members`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -107,6 +125,9 @@ export class WebhookGroups {
 
     /**
      * Remove Webhook Group Members
+     *
+     * Removes members from webhook groups.
+     *
      * `POST /v1/webhooks/groups/{id}/remove_members`
      */
     removeMembers(
@@ -129,6 +150,9 @@ export class Webhooks {
 
     /**
      * Register Webhook
+     *
+     * Register an endpoint to start receiving selected webhook events
+     *
      * `POST /v1/webhooks`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -145,6 +169,9 @@ export class Webhooks {
 
     /**
      * Unregister Webhook
+     *
+     * Unregister a webhook if you want to stop receiving webhook events
+     *
      * `DELETE /v1/webhooks/{id}`
      */
     delete(
@@ -158,6 +185,9 @@ export class Webhooks {
 
     /**
      * Get Webhook
+     *
+     * Get details of a webhook
+     *
      * `GET /v1/webhooks/{id}`
      */
     get(
@@ -173,6 +203,9 @@ export class Webhooks {
 
     /**
      * List Webhooks
+     *
+     * List the webhooks you have registered
+     *
      * `GET /v1/webhooks`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -189,6 +222,13 @@ export class Webhooks {
 
     /**
      * List Webhook Secrets
+     *
+     * This endpoint returns a set of webhook signing secrets used to validate the webhook.
+     * Usually only one key will be returned in the response. After key rotation, this endpoint will return two keys:
+     * the new key, and the key that will be revoked soon. There will also be two signatures in the 'Webhook-Signature' request header.
+     * Your application should use all keys available to validate the webhook request. If validation passes for any
+     * of the keys returned, the webhook payload is valid.
+     *
      * `GET /v1/webhooks/secrets`
      */
     listSecrets(
@@ -203,6 +243,10 @@ export class Webhooks {
 
     /**
      * Update Webhook
+     *
+     * Update a webhook.
+     * You can update the endpoint url, event types that the endpoint receives, or temporarily deactivate the webhook.
+     *
      * `PUT /v1/webhooks/{id}`
      */
     update(

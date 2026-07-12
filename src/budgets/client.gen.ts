@@ -10,6 +10,9 @@ export class BudgetPrograms {
 
     /**
      * Get Budget Program
+     *
+     * Retrieves a Budget Program by ID
+     *
      * `GET /v1/budget_programs/{id}` — requires OAuth scope: `budgets.readonly`, `budgets`
      */
     get(
@@ -25,6 +28,9 @@ export class BudgetPrograms {
 
     /**
      * List Budget Programs
+     *
+     * Lists Budget Programs belonging to this account
+     *
      * `GET /v1/budget_programs` — requires OAuth scope: `budgets.readonly`, `budgets`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -45,6 +51,9 @@ export class Budgets {
 
     /**
      * Archive a Budget
+     *
+     * Archives a Budget, making any Spend Limits beneath it unusable for future expenses and removing it from the UI
+     *
      * `POST /v2/budgets/{id}/archive` — requires OAuth scope: `budgets`
      */
     archive(
@@ -58,6 +67,9 @@ export class Budgets {
 
     /**
      * Create Budget
+     *
+     * Creates a Budget
+     *
      * `POST /v2/budgets` — requires OAuth scope: `budgets`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -74,6 +86,9 @@ export class Budgets {
 
     /**
      * Get Budget
+     *
+     * Retrieves a Budget by ID
+     *
      * `GET /v2/budgets/{id}` — requires OAuth scope: `budgets.readonly`, `budgets`
      */
     get(
@@ -89,6 +104,9 @@ export class Budgets {
 
     /**
      * List Budgets
+     *
+     * Retrieves a list of Budgets
+     *
      * `GET /v2/budgets` — requires OAuth scope: `budgets.readonly`, `budgets`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -103,6 +121,9 @@ export class Budgets {
 
     /**
      * Update Budget
+     *
+     * Updates a Budget
+     *
      * `PUT /v2/budgets/{id}` — requires OAuth scope: `budgets`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -130,6 +151,9 @@ export class BudgetsV1 {
 
     /**
      * Archive a Spend Limit
+     *
+     * Archives a Spend Limit, making it unusable for future expenses and removing it from the UI
+     *
      * `POST /v1/budgets/{id}/archive` — requires OAuth scope: `budgets`
      */
     archive(
@@ -143,6 +167,9 @@ export class BudgetsV1 {
 
     /**
      * Create Spend Limit
+     *
+     * Creates a Spend Limit
+     *
      * `POST /v1/budgets` — requires OAuth scope: `budgets`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -159,6 +186,9 @@ export class BudgetsV1 {
 
     /**
      * Get Spend Limit
+     *
+     * Retrieves a Spend Limit by ID
+     *
      * `GET /v1/budgets/{id}` — requires OAuth scope: `budgets.readonly`, `budgets`
      */
     get(
@@ -174,6 +204,9 @@ export class BudgetsV1 {
 
     /**
      * List Spend Limits
+     *
+     * Lists Spend Limits belonging to this account
+     *
      * `GET /v1/budgets` — requires OAuth scope: `budgets.readonly`, `budgets`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -188,6 +221,9 @@ export class BudgetsV1 {
 
     /**
      * Update Spend Limit
+     *
+     * Updates a Spend Limit
+     *
      * `PUT /v1/budgets/{id}` — requires OAuth scope: `budgets`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -215,6 +251,9 @@ export class SpendLimits {
 
     /**
      * Archive a Spend Limit
+     *
+     * Archives a Spend Limit, making it unusable for future expenses and removing it from the UI
+     *
      * `POST /v2/spend_limits/{id}/archive` — requires OAuth scope: `budgets`
      */
     archive(
@@ -230,6 +269,9 @@ export class SpendLimits {
 
     /**
      * Create Spend Limit
+     *
+     * Creates a Spend Limit
+     *
      * `POST /v2/spend_limits` — requires OAuth scope: `budgets`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -248,6 +290,9 @@ export class SpendLimits {
 
     /**
      * Get Spend Limit
+     *
+     * Retrieves a Spend Limit by ID
+     *
      * `GET /v2/spend_limits/{id}` — requires OAuth scope: `budgets.readonly`, `budgets`
      */
     get(
@@ -263,6 +308,9 @@ export class SpendLimits {
 
     /**
      * List Spend Limits
+     *
+     * Retrieves a list of Spend Limits
+     *
      * `GET /v2/spend_limits` — requires OAuth scope: `budgets.readonly`, `budgets`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -279,6 +327,9 @@ export class SpendLimits {
 
     /**
      * Update Spend Limit
+     *
+     * Updates a Spend Limit
+     *
      * `PUT /v2/spend_limits/{id}` — requires OAuth scope: `budgets`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */

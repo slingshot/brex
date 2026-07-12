@@ -80,6 +80,7 @@ function op(partial: Partial<OperationIR> & Pick<OperationIR, 'operationId' | 't
         path: '/v1/x',
         method: 'get',
         summary: undefined,
+        description: undefined,
         deprecated: false,
         scopes: [],
         pathParams: [],

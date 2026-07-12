@@ -10,6 +10,14 @@ export class Cards {
 
     /**
      * Create card
+     *
+     * Creates a new card.
+     * The `spend_controls` field is required when `limit_type` = `CARD`.
+     * The `mailing_address` field is required for physical cards and is the shipping address used to send the card; it is not the same as the billing and mailing address used for online purchases.
+     * The first 2 lines of this address must be under 60 characters long. Each user can only have up to 10 active physical cards.
+     * For Empower accounts, this endpoint requires budget management. If your account does not have access to budget management features, a 403 response status will be returned.
+     * If this is the case and you want to gain access to this endpoint, please contact Brex support.
+     *
      * `POST /v2/cards` — requires OAuth scope: `cards`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -24,6 +32,12 @@ export class Cards {
 
     /**
      * Create secure email to send card number
+     *
+     * Creates a secure email to send card number, CVV, and expiration date of a card by ID to the specified email.
+     *
+     * This endpoint is currently gated. If you would like to request access, please reach out to
+     * developer-support@brex.com
+     *
      * `POST /v2/cards/{id}/secure_email` — requires OAuth scope: `cards.pan`
      * Sends an `Idempotency-Key` header: `options.idempotencyKey`, or an auto-generated UUID.
      */
@@ -43,6 +57,9 @@ export class Cards {
 
     /**
      * Get card
+     *
+     * Retrieves a card by ID. Only cards with `limit_type = CARD` have `spend_controls`
+     *
      * `GET /v2/cards/{id}` — requires OAuth scope: `cards`, `cards.readonly`
      */
     get(
@@ -56,6 +73,9 @@ export class Cards {
 
     /**
      * Get card number
+     *
+     * Retrieves card number, CVV, and expiration date of a card by ID.
+     *
      * `GET /v2/cards/{id}/pan` — requires OAuth scope: `cards.pan`
      */
     getNumber(
@@ -71,6 +91,10 @@ export class Cards {
 
     /**
      * List cards
+     *
+     * Lists all cards by a `user_id`.
+     * Only cards with `limit_type = CARD` have `spend_controls`
+     *
      * `GET /v2/cards` — requires OAuth scope: `cards.readonly`, `cards`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -85,6 +109,9 @@ export class Cards {
 
     /**
      * Lock card
+     *
+     * Locks an existing, unlocked card. And the card owner will receive a notification about it.
+     *
      * `POST /v2/cards/{id}/lock` — requires OAuth scope: `cards`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */
@@ -108,6 +135,9 @@ export class Cards {
 
     /**
      * Terminate card
+     *
+     * Terminates an existing card. The card owner will receive a notification about it.
+     *
      * `POST /v2/cards/{id}/terminate` — requires OAuth scope: `cards`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */
@@ -131,6 +161,9 @@ export class Cards {
 
     /**
      * Unlock card
+     *
+     * Unlocks an existing card.
+     *
      * `POST /v2/cards/{id}/unlock` — requires OAuth scope: `cards`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */
@@ -150,6 +183,9 @@ export class Cards {
 
     /**
      * Update card
+     *
+     * Update an existing vendor card
+     *
      * `PUT /v2/cards/{id}` — requires OAuth scope: `cards`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */
@@ -171,6 +207,9 @@ export class Companies {
 
     /**
      * Get company
+     *
+     * This endpoint returns the company associated with the OAuth2 access token.
+     *
      * `GET /v2/company` — requires OAuth scope: `companies.readonly`
      */
     get(
@@ -187,6 +226,9 @@ export class Departments {
 
     /**
      * Create department
+     *
+     * This endpoint creates a new department
+     *
      * `POST /v2/departments` — requires OAuth scope: `departments`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */
@@ -205,6 +247,9 @@ export class Departments {
 
     /**
      * Get department
+     *
+     * This endpoint gets a department by ID.
+     *
      * `GET /v2/departments/{id}` — requires OAuth scope: `departments`, `departments.readonly`
      */
     get(
@@ -220,6 +265,9 @@ export class Departments {
 
     /**
      * List departments
+     *
+     * This endpoint lists all departments.
+     *
      * `GET /v2/departments` — requires OAuth scope: `departments`, `departments.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -240,6 +288,9 @@ export class LegalEntities {
 
     /**
      * Get legal entity
+     *
+     * Get a legal entity by its ID.
+     *
      * `GET /v2/legal_entities/{id}` — requires OAuth scope: `legal_entities`, `legal_entities.readonly`
      */
     get(
@@ -255,6 +306,9 @@ export class LegalEntities {
 
     /**
      * List legal entities
+     *
+     * List legal entities for the account.
+     *
      * `GET /v2/legal_entities` — requires OAuth scope: `legal_entities`, `legal_entities.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -275,6 +329,9 @@ export class Locations {
 
     /**
      * Create location
+     *
+     * This endpoint creates a new location.
+     *
      * `POST /v2/locations` — requires OAuth scope: `locations`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */
@@ -291,6 +348,9 @@ export class Locations {
 
     /**
      * Get location
+     *
+     * This endpoint gets a location by ID.
+     *
      * `GET /v2/locations/{id}` — requires OAuth scope: `locations`, `locations.readonly`
      */
     get(
@@ -306,6 +366,9 @@ export class Locations {
 
     /**
      * List locations
+     *
+     * This endpoint lists all locations.
+     *
      * `GET /v2/locations` — requires OAuth scope: `locations`, `locations.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -326,6 +389,9 @@ export class Titles {
 
     /**
      * Create title
+     *
+     * This endpoint creates a new title
+     *
      * `POST /v2/titles` — requires OAuth scope: `titles`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */
@@ -342,6 +408,9 @@ export class Titles {
 
     /**
      * Get title
+     *
+     * This endpoint gets a title by ID.
+     *
      * `GET /v2/titles/{id}` — requires OAuth scope: `titles`, `titles.readonly`
      */
     get(
@@ -355,6 +424,9 @@ export class Titles {
 
     /**
      * List titles
+     *
+     * This endpoint lists all titles.
+     *
      * `GET /v2/titles` — requires OAuth scope: `titles`, `titles.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -373,6 +445,10 @@ export class Users {
 
     /**
      * Invite user
+     *
+     * This endpoint invites a new user as an employee.
+     * To update user's role, check out [this article](https://support.brex.com/how-do-i-change-another-user-s-role/).
+     *
      * `POST /v2/users` — requires OAuth scope: `users`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */
@@ -387,6 +463,9 @@ export class Users {
 
     /**
      * Get user
+     *
+     * This endpoint gets a user by ID.
+     *
      * `GET /v2/users/{id}` — requires OAuth scope: `users`, `users.readonly`
      */
     get(
@@ -400,6 +479,9 @@ export class Users {
 
     /**
      * Get limit for the user
+     *
+     * This endpoint gets the monthly limit for the user including the monthly available limit.
+     *
      * `GET /v2/users/{id}/limit` — requires OAuth scope: `users`, `users.readonly`
      */
     getLimit(
@@ -415,6 +497,9 @@ export class Users {
 
     /**
      * Get current user
+     *
+     * This endpoint returns the user associated with the OAuth2 access token.
+     *
      * `GET /v2/users/me` — requires OAuth scope: `users`, `users.readonly`
      */
     getMe(
@@ -427,6 +512,9 @@ export class Users {
 
     /**
      * List users
+     *
+     * This endpoint lists all users. To find a user id by email, you can filter using the `email` query parameter.
+     *
      * `GET /v2/users` — requires OAuth scope: `users`, `users.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -441,6 +529,11 @@ export class Users {
 
     /**
      * Set limit for the user
+     *
+     * This endpoint sets the monthly limit for a user.
+     * The limit amount must be non-negative.
+     * To unset the monthly limit of the user, just set `monthly_limit` to null.
+     *
      * `POST /v2/users/{id}/limit` — requires OAuth scope: `users`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */
@@ -464,6 +557,9 @@ export class Users {
 
     /**
      * Update user
+     *
+     * This endpoint updates a user. Any parameters not provided will be left unchanged.
+     *
      * `PUT /v2/users/{id}` — requires OAuth scope: `users`
      * Supports an optional `Idempotency-Key` via `options.idempotencyKey`.
      */

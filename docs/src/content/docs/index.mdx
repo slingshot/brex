@@ -1,0 +1,70 @@
+---
+title: brex
+description: Unofficial TypeScript SDK for the Brex API — fully typed, tree-shakeable, zero-dependency, generated from Brex's OpenAPI specs.
+template: splash
+hero:
+  tagline: The unofficial TypeScript SDK for the Brex API. Fully typed, tree-shakeable, zero-dependency — and generated deterministically from Brex's published OpenAPI specs.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Get started
+      link: /brex/getting-started/installation/
+      icon: right-arrow
+      variant: primary
+    - text: API reference
+      link: /brex/api/readme/
+      icon: open-book
+      variant: minimal
+    - text: View on GitHub
+      link: https://github.com/slingshot/brex
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, Code } from '@astrojs/starlight/components';
+
+```ts
+import { Brex } from 'brex';
+
+const brex = new Brex({ token: process.env.BREX_TOKEN! });
+
+// Typed responses, auto-pagination, idempotency — all built in.
+for await (const expense of brex.expenses.list({ 'expand[]': ['merchant'] })) {
+  console.log(expense.id, expense.merchant?.raw_descriptor);
+}
+```
+
+<CardGrid stagger>
+  <Card title="Fully typed" icon="seti:typescript">
+    Request bodies, query params, and responses are typed straight from the
+    specs. Every method also carries the operation's full description inline.
+  </Card>
+  <Card title="Tree-shakeable" icon="puzzle">
+    Import one API via a subpath (`brex/payments`) and the other nine never
+    enter your bundle — about 3.5&nbsp;kB min for a single API.
+  </Card>
+  <Card title="Runs everywhere" icon="rocket">
+    Native `fetch`, zero runtime dependencies, ESM-only. Node&nbsp;≥&nbsp;20.19
+    (including `require()`), Bun, Deno, browsers, and edge runtimes.
+  </Card>
+  <Card title="Auto-pagination" icon="list-format">
+    Every list method is both a promise and an async iterator — await a page,
+    or `for await` across all of them.
+  </Card>
+  <Card title="Idempotency built in" icon="approve-check">
+    `Idempotency-Key` headers are sent automatically wherever Brex requires
+    them, with an auto-generated UUID by default.
+  </Card>
+  <Card title="LLM-friendly" icon="comment-alt">
+    Every page is available as raw Markdown (add `.md` to any URL), plus
+    [`/llms.txt`](/brex/llms.txt) and [`/llms-full.txt`](/brex/llms-full.txt).
+  </Card>
+</CardGrid>
+
+:::caution[Unofficial library]
+`brex` is **not** created, maintained, or endorsed by Brex Inc. or any
+associated entity. "Brex" is a registered trademark of Brex, Inc. Use of the
+Brex API is subject to the [Brex Access Agreement](https://www.brex.com/legal/developer-portal/).
+Most usage involves highly sensitive financial data — you are entirely
+responsible for securing it.
+:::

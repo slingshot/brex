@@ -10,6 +10,11 @@ export class Referrals {
 
     /**
      * Create a new document upload
+     *
+     * The `uri` will be a presigned S3 URL allowing you to upload the referral doc securely. This URL can only be used for a `PUT` operation and expires 30 minutes after its creation. Once your upload is complete, we will use this to prefill the application.
+     *
+     * Refer to these [docs](https://docs.aws.amazon.com/AmazonS3/latest/dev/PresignedUrlUploadObject.html) on how to upload to this presigned S3 URL. We highly recommend using one of AWS SDKs if they're available for your language to upload these files.
+     *
      * `POST /v1/referrals/{id}/document_upload`
      */
     createDocument(
@@ -28,6 +33,9 @@ export class Referrals {
 
     /**
      * Creates a referral
+     *
+     * This creates new referrals. The response will contain an identifier and a unique personalized link to an application flow. Many fields are optional and when they're provided they'll prefill the application flow for Brex.  You should handle and store these references securely as they contain sensitive information about the referral.
+     *
      * `POST /v1/referrals`
      */
     createRequest(
@@ -43,6 +51,9 @@ export class Referrals {
 
     /**
      * Gets a referral by ID
+     *
+     * Returns a referral object by ID if it exists.
+     *
      * `GET /v1/referrals/{id}`
      */
     get(
@@ -58,6 +69,10 @@ export class Referrals {
 
     /**
      * List referrals
+     *
+     * Returns referrals created.
+     * *Note*: This doesn't include referrals that have expired.
+     *
      * `GET /v1/referrals`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -74,6 +89,14 @@ export class Referrals {
 
     /**
      * Process a delayed EIN document after upload
+     *
+     * Processes a delayed EIN document after it has been uploaded.
+     *
+     * This endpoint should be called after successfully uploading an IRS EIN Confirmation document (CP-575, CP-575 fax sheet, or 147C) using the
+     * standard document upload flow (`/v1/referrals/{id}/document_upload` with `type: IRS_EIN_CONFIRMATION`).
+     *
+     * The `document_id` should be the `id` returned from the document upload request.
+     *
      * `POST /v1/referrals/{id}/process_ein_document`
      */
     processDelayedEINDocument(

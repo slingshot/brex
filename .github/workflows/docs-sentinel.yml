@@ -21,5 +21,7 @@ jobs:
     with:
       # CLAUDE.md is a symlink to AGENTS.md and is deliberately excluded —
       # edits land via AGENTS.md. The .changeset/*.md files are release-notes
-      # inputs, not living docs.
-      allowlist-regex: '^(README\.md|AGENTS\.md|CONTRIBUTING\.md)$'
+      # inputs, not living docs. The docs/ guide pages (the hand-written
+      # Starlight content) are in scope; the generated API reference under
+      # docs/src/content/docs/api/ is gitignored, so it never appears in a diff.
+      allowlist-regex: '^(README\.md|AGENTS\.md|CONTRIBUTING\.md|docs/src/content/docs/.*\.mdx?)$'

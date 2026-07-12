@@ -10,6 +10,16 @@ export class AccountingIntegrations {
 
     /**
      * Create accounting integration
+     *
+     * Create a new accounting integration. The behavior depends on the existing active integration:
+     *
+     * - If no active integration exists: Creates and returns new integration
+     * - If active integration exists with same vendor and vendor_account_id: Returns the existing active integration
+     * - If active integration exists with same vendor but different vendor_account_id: Returns 409 error
+     * - If active integration exists with different vendor: Returns 409 error
+     *
+     * This ensures only one active integration exists per account.
+     *
      * `POST /v3/accounting/integration` — requires OAuth scope: `accounting.integration.write`
      */
     create(
@@ -27,6 +37,13 @@ export class AccountingIntegrations {
 
     /**
      * Disconnect accounting integration
+     *
+     * Disconnect an active accounting integration.
+     *
+     * - If integration is ACTIVE: Disconnects and returns success
+     * - If integration ID doesn't exist: Returns 404 error
+     * - If integration is not currently active: Returns 409 error
+     *
      * `POST /v3/accounting/integration/{integration_id}/disconnect` — requires OAuth scope: `accounting.integration.write`
      */
     disconnect(
@@ -44,6 +61,13 @@ export class AccountingIntegrations {
 
     /**
      * Reactivate accounting integration
+     *
+     * Reactivate a disconnected accounting integration.
+     *
+     * - If integration is DISABLED: Reactivates and returns success
+     * - If integration ID doesn't exist: Returns 404 error
+     * - If an active integration already exists: Returns 409 error
+     *
      * `POST /v3/accounting/integration/{integration_id}/reactivate` — requires OAuth scope: `accounting.integration.write`
      */
     reactivate(
@@ -65,6 +89,9 @@ export class AccountingRecords {
 
     /**
      * Get accounting record by ID
+     *
+     * Retrieve a single accounting record by its unique identifier
+     *
      * `GET /v3/accounting/records/{record_id}` — requires OAuth scope: `accounting.record.read`, `accounting.record.write`
      */
     get(
@@ -81,6 +108,18 @@ export class AccountingRecords {
 
     /**
      * Query accounting records
+     *
+     * Query accounting records by IDs or with filters for polling. When building integrations with Brex accounting workflow, use filter-based polling as a fallback mechanism. Suggested cadence is 1 hour.
+     *
+     * **For card and reimbursement records:**
+     * Use `review_status` to filter by accounting workflow stage (e.g., READY_FOR_EXPORT, EXPORTED).
+     *
+     * **For bill records:**
+     * Use `source_type=BILL` with `updated_at[gt]` to poll for updated bill records.
+     *
+     * **Filter Constraints:**
+     * - `review_status` is only supported with CARD and REIMBURSEMENT source types
+     *
      * `GET /v3/accounting/records` — requires OAuth scope: `accounting.record.read`, `accounting.record.write`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -97,6 +136,9 @@ export class AccountingRecords {
 
     /**
      * Report accounting export results
+     *
+     * Report export success or failure for accounting records.
+     *
      * `POST /v3/accounting/records/export-results` — requires OAuth scope: `accounting.record.write`
      */
     reportAccountingExportResults(

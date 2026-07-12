@@ -10,6 +10,9 @@ export class Trips {
 
     /**
      * Get trip
+     *
+     * Retrieves a trip by ID.
+     *
      * `GET /v1/trips/{trip_id}` — requires OAuth scope: `travel.trips`, `travel.trips.readonly`
      */
     get(
@@ -25,6 +28,9 @@ export class Trips {
 
     /**
      * Get booking
+     *
+     * Retrieves a booking by trip and booking ID.
+     *
      * `GET /v1/trips/{trip_id}/bookings/{booking_id}` — requires OAuth scope: `travel.trips`, `travel.trips.readonly`
      */
     getBooking(
@@ -45,6 +51,9 @@ export class Trips {
 
     /**
      * List trips
+     *
+     * Lists trips according to the filters passed in the query string.
+     *
      * `GET /v1/trips` — requires OAuth scope: `travel.trips`, `travel.trips.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */
@@ -59,6 +68,9 @@ export class Trips {
 
     /**
      * List trip bookings
+     *
+     * Lists the bookings within a trip.
+     *
      * `GET /v1/trips/{trip_id}/bookings` — requires OAuth scope: `travel.trips`, `travel.trips.readonly`
      * Await for a single page, or `for await` to iterate items across all pages.
      */

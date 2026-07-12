@@ -1,0 +1,54 @@
+---
+title: Installation
+description: Install the brex SDK and check your runtime requirements.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="pkg">
+  <TabItem label="bun">
+
+  ```sh
+  bun add brex
+  ```
+
+  </TabItem>
+  <TabItem label="npm">
+
+  ```sh
+  npm install brex
+  ```
+
+  </TabItem>
+  <TabItem label="pnpm">
+
+  ```sh
+  pnpm add brex
+  ```
+
+  </TabItem>
+  <TabItem label="yarn">
+
+  ```sh
+  yarn add brex
+  ```
+
+  </TabItem>
+</Tabs>
+
+## Runtime requirements
+
+- **Node ≥ 20.19**, or any modern runtime with a global `fetch` (Bun, Deno,
+  browsers, edge runtimes).
+- The package is **ESM-only**. On Node ≥ 20.19, `require("brex")` works too,
+  thanks to `require(esm)` support.
+- **Zero runtime dependencies.**
+
+## What you get
+
+The package ships 11 entry points: the root `brex` client plus one subpath per
+Brex API (`brex/payments`, `brex/expenses`, and so on). Each entry point
+carries its own types and, for the subpaths, a lightweight client factory. See
+[Tree-shakeable imports](/brex/guides/subpath-imports/) for when to use which.
+
+Next: head to the [Quickstart](/brex/getting-started/quickstart/).

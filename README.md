@@ -2,6 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/brex.svg)](https://www.npmjs.com/package/brex)
 [![CI](https://github.com/slingshot/brex/actions/workflows/ci.yml/badge.svg)](https://github.com/slingshot/brex/actions/workflows/ci.yml)
+[![Documentation](https://img.shields.io/badge/docs-slingshot.github.io%2Fbrex-7c6cff)](https://slingshot.github.io/brex)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 An unofficial TypeScript SDK for the [Brex API](https://developer.brex.com), maintained by [Slingshot](https://github.com/slingshot). Every client, method, and type is **generated deterministically from Brex's published OpenAPI specs** — the specs are vendored in this repo, generation is byte-for-byte reproducible, and CI fails if the committed code ever drifts from the specs.
@@ -14,6 +15,15 @@ An unofficial TypeScript SDK for the [Brex API](https://developer.brex.com), mai
 
 > [!IMPORTANT]
 > This is an **unofficial library**, not created, maintained, or in any way connected with Brex Inc. or any associated entity. "Brex" is a registered trademark of Brex, Inc. Use of the Brex API is subject to the [Brex Access Agreement](https://www.brex.com/legal/developer-portal/). Most usage involves highly sensitive financial data — you are entirely responsible for securing it.
+
+## Documentation
+
+Full documentation lives at **[slingshot.github.io/brex](https://slingshot.github.io/brex)** —
+guides plus a complete, generated [API reference](https://slingshot.github.io/brex/api/readme/)
+with the full description of every method. It's LLM-friendly too: append `.md` to any page
+URL for raw Markdown, or grab [`/llms.txt`](https://slingshot.github.io/brex/llms.txt) and
+[`/llms-full.txt`](https://slingshot.github.io/brex/llms-full.txt). The quickstart below is a
+condensed version.
 
 ## Install
 

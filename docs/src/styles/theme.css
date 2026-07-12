@@ -1,0 +1,80 @@
+/* brex docs — custom theme.
+   Accent is a refined violet/indigo. The branding is deliberately original and
+   neutral: this is an unofficial SDK and is not styled to imitate Brex's brand.
+   Starlight is dark-first, so :root holds dark tokens and
+   :root[data-theme='light'] overrides for light mode. */
+
+:root {
+	--sl-color-accent-low: #201a4d;
+	--sl-color-accent: #7c6cff;
+	--sl-color-accent-high: #cec8ff;
+
+	/* Reused by the hero glow + subtle surfaces. */
+	--brex-accent-rgb: 124, 108, 255;
+}
+
+:root[data-theme='light'] {
+	--sl-color-accent-low: #e5e1ff;
+	--sl-color-accent: #5a49e0;
+	--sl-color-accent-high: #211a5e;
+
+	--brex-accent-rgb: 90, 73, 224;
+}
+
+/* --- Splash hero ------------------------------------------------------- */
+
+.hero {
+	position: relative;
+}
+
+/* Soft accent glow behind the hero on the landing page. */
+.hero::before {
+	content: '';
+	position: absolute;
+	inset: -20% -10% auto -10%;
+	height: 120%;
+	background: radial-gradient(
+		60% 60% at 50% 0%,
+		rgba(var(--brex-accent-rgb), 0.22),
+		transparent 70%
+	);
+	z-index: -1;
+	pointer-events: none;
+}
+
+.hero h1 {
+	letter-spacing: -0.02em;
+}
+
+/* --- Cards ------------------------------------------------------------- */
+
+.card {
+	border-radius: 0.75rem;
+	transition:
+		border-color 0.2s ease,
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+.card:hover {
+	border-color: var(--sl-color-accent);
+	transform: translateY(-2px);
+	box-shadow: 0 8px 30px -12px rgba(var(--brex-accent-rgb), 0.35);
+}
+
+.card .icon {
+	color: var(--sl-color-accent);
+	border-color: color-mix(in srgb, var(--sl-color-accent) 40%, transparent);
+	background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+}
+
+/* --- Code + inline polish --------------------------------------------- */
+
+.expressive-code .frame {
+	border-radius: 0.6rem;
+}
+
+/* Struck-through (deprecated) method names read a touch softer. */
+.sl-markdown-content del {
+	opacity: 0.6;
+}
