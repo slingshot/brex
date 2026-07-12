@@ -68,6 +68,8 @@ bunx changeset       # describe the API surface change
 
 ## Style
 
+- **Conventional Commits required** (`feat:`, `fix:`, `chore:`, `test:`, `ci:`, `docs:`; `!` for breaking). lefthook runs commitlint on commit-msg, Biome on pre-commit, and typecheck+tests on pre-push.
+- Airbnb-flavored Biome config: 4-space indent, single quotes, semicolons, `noParameterAssign`/`useTemplate` etc. — `bun run format` fixes everything
 - ESM-only, web-standard APIs in `src/` (no `node:` or Bun imports — `tsconfig.lib.json` enforces this)
 - Exact-pinned devDependencies; version bumps of `openapi-typescript`/`typescript`/`@biomejs/biome`/`tsdown` change generated or published output — treat as deliberate, reviewed changes
 - Tests use `bun:test` with the injectable `fetch` (see `tests/helpers.ts`); no network in tests

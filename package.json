@@ -74,6 +74,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
+    "prepare": "lefthook install",
     "sync-specs": "bun scripts/sync-specs.ts",
     "generate": "bun scripts/generate.ts",
     "build": "tsdown",
@@ -92,7 +93,10 @@
     "@arethetypeswrong/cli": "0.18.5",
     "@biomejs/biome": "2.5.3",
     "@changesets/cli": "2.31.0",
+    "@commitlint/cli": "21.2.1",
+    "@commitlint/config-conventional": "21.2.0",
     "@types/bun": "1.3.14",
+    "lefthook": "2.1.10",
     "openapi-typescript": "7.13.0",
     "publint": "0.3.21",
     "tsdown": "0.22.5",

@@ -6,7 +6,7 @@ Thanks for helping! This repo is a deterministic SDK generator plus a small hand
 
 ```sh
 # Requires Bun (https://bun.sh) — version pinned in package.json's packageManager
-bun install
+bun install   # also installs git hooks via lefthook
 bun test
 ```
 
@@ -15,6 +15,17 @@ bun test
 1. **Never edit generated files** (`src/**/*.gen.ts`, `src/*/index.ts`, `src/index.ts`, the README API table). Edit `scripts/generate/` or `scripts/generate/overrides.ts` and run `bun run generate`. CI regenerates and fails on any diff.
 2. **Commit generated output with the change that caused it** — one reviewable unit.
 3. Keep `src/core/` free of Node/Bun-specific APIs; `bun run typecheck` enforces this via `tsconfig.lib.json`.
+4. **Commit messages follow [Conventional Commits](https://www.conventionalcommits.org)** (`feat:`, `fix:`, `docs:`, `chore:`, … with `!` for breaking changes). Enforced locally by commitlint via a lefthook `commit-msg` hook, and in CI for PRs.
+
+## Git hooks
+
+[lefthook](https://lefthook.dev) installs these on `bun install`:
+
+- **pre-commit** — Biome lint + format on staged files (fixes are re-staged automatically)
+- **commit-msg** — commitlint (Conventional Commits; the Changesets "Version Packages" commit is exempt)
+- **pre-push** — `bun run typecheck` + `bun test`
+
+`git commit --no-verify` skips them in a pinch, but CI runs the same checks.
 
 ## Common tasks
 
