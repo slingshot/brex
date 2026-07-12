@@ -11,6 +11,11 @@ updates:
     groups:
       dependencies:
         patterns: ["*"]
+    ignore:
+      # openapi-typescript's peer range is ^5.x; TS majors are deliberate,
+      # reviewed upgrades (they can change generated/published output).
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
