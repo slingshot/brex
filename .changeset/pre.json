@@ -4,5 +4,5 @@
   "initialVersions": {
     "brex": "2.0.0-alpha.0"
   },
-  "changesets": []
+  "changesets": ["brex-v2-rewrite"]
 }
