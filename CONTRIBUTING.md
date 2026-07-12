@@ -22,7 +22,7 @@ bun test
 [lefthook](https://lefthook.dev) installs these on `bun install`:
 
 - **pre-commit** — Biome lint + format on staged files (fixes are re-staged automatically)
-- **commit-msg** — commitlint (Conventional Commits; the Changesets "Version Packages" commit is exempt)
+- **commit-msg** — commitlint (Conventional Commits; automation commits comply too — Changesets releases as `chore(release)`, Dependabot as `chore(deps)`/`ci(deps)`)
 - **pre-push** — `bun run typecheck` + `bun test`
 
 `git commit --no-verify` skips them in a pinch, but CI runs the same checks.

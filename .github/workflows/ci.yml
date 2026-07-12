@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    runs-on: nscloud-ubuntu-24.04-amd64-4x8
     steps:
       - uses: actions/checkout@v5
         with:
