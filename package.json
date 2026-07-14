@@ -99,7 +99,7 @@
     "lefthook": "2.1.10",
     "openapi-typescript": "7.13.0",
     "publint": "0.3.21",
-    "tsdown": "0.22.5",
+    "tsdown": "0.22.7",
     "typescript": "5.9.3",
     "yaml": "2.9.0"
   }
