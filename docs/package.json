@@ -14,7 +14,7 @@
   "dependencies": {
     "@astrojs/starlight": "0.41.3",
     "astro": "7.0.7",
-    "sharp": "0.34.5",
+    "sharp": "0.35.0",
     "starlight-dot-md": "0.2.1",
     "starlight-llms-txt": "0.11.0",
     "starlight-page-actions": "0.6.2",
